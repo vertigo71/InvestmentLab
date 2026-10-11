@@ -1,8 +1,8 @@
-'''
+"""
 Created on 11 Oct 2026
 
 @author: mxarl
-'''
+"""
 
 '''
 Yahoo Finance historical data loader.
@@ -15,14 +15,14 @@ from models.price_point import PricePoint
 
 class YahooLoader:
 
+    @staticmethod
     def load(
-        self,
-        ticker: str,
-        start_date: str,
-        end_date: str
+            ticker: str,
+            start_date: str,
+            end_date: str
     ) -> list[PricePoint]:
-        
-        '''
+
+        """
         Loads historical market data from Yahoo Finance.
 
         :Parameters:
@@ -48,7 +48,7 @@ class YahooLoader:
         :Raises:
             ValueError
                 If no data is returned.
-        '''
+        """
 
         # Download weekly candles.
         df = yf.download(
@@ -57,6 +57,11 @@ class YahooLoader:
             end=end_date,
             interval="1wk"
         )
+
+        if df is None:
+            raise ValueError(
+                f"No data returned for ticker '{ticker}'"
+            )
 
         if df.empty:
             raise ValueError(
@@ -71,7 +76,6 @@ class YahooLoader:
 
         # Iterate over rows using named attributes.
         for week, row in enumerate(df.itertuples()):
-
             close: float = float(row.Close)
 
             running_max = max(
@@ -89,4 +93,3 @@ class YahooLoader:
             )
 
         return prices
-    
