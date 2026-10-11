@@ -78,6 +78,7 @@ class YahooLoader:
         for week, row in enumerate(df.itertuples()):
             close: float = float(row.Close)
 
+
             running_max = max(
                 running_max,
                 close
