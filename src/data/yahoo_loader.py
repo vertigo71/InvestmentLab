@@ -58,6 +58,40 @@ class YahooLoader:
                 f"No data returned for ticker '{ticker}'"
             )
 
+        # Recent versions of yfinance return a MultiIndex even when a
+        # single ticker is requested.
+        #
+        # Example:
+        #
+        #     MultiIndex([
+        #         ('Close', 'URTH'),
+        #         ('High',  'URTH'),
+        #         ('Low',   'URTH'),
+        #         ('Open',  'URTH'),
+        #         ('Volume','URTH')
+        #     ])
+        #
+        # This project expects simple column names:
+        #
+        #     Close
+        #     High
+        #     Low
+        #     Open
+        #     Volume
+        #
+        # Flatten the MultiIndex by keeping only the first level
+        # (the price field name) so rows can be accessed through:
+        #
+        #     row.Close
+        #     row.High
+        #     row.Low
+        #
+        # instead of:
+        #
+        #     ("Close", "URTH")
+        #
+        df.columns = df.columns.get_level_values(0)
+
         # Generated PricePoint objects.
         prices: list[PricePoint] = []
 

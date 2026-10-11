@@ -3,6 +3,7 @@ Created on 11 Oct 2026
 
 @author: mxarl
 """
+from models.contribution_frequency import ContributionFrequency
 
 """
 Traditional Dollar Cost Averaging strategy.
@@ -15,16 +16,27 @@ class DCA(Strategy):
 
     def __init__(
             self,
-            contribution_amount: float
+            contribution_amount: float,
+            frequency: ContributionFrequency
     ):
         """
         Creates a DCA strategy.
 
         :param contribution_amount:
-            Fixed amount invested each period.
+                Fixed amount invested each period.
+
+        :param frequency:
+                Contribution frequency.
+
+                Examples:
+
+                    WEEKLY
+                    BIWEEKLY
+                    MONTHLY
         """
 
         self.contribution_amount = contribution_amount
+        self.frequency = frequency
 
     def contribution(
             self,
@@ -52,6 +64,11 @@ class DCA(Strategy):
             Amount to invest during the current period.
         """
 
+        # Skip periods that are not contribution periods.
+        if period_index % self.frequency.value != 0:
+            return 0.0
+
+        # Never invest more cash than available.
         return min(
             self.contribution_amount,
             cash_remaining
