@@ -1,8 +1,3 @@
-'''
-Created on 10 Oct 2026
-
-@author: mxarl
-'''
 """
 Defines the base contract for all investment strategies.
 
@@ -26,29 +21,28 @@ class Strategy(ABC):
 
     @abstractmethod
     def contribution(
-        self,
-        week: int,
-        price: float,
-        max_price: float,
-        cash_remaining: float
+            self,
+            period_index: int,
+            price: float,
+            max_price: float,
+            cash_remaining: float
     ) -> float:
         """
         Calculates how much money should be invested.
 
-        Args:
-            week:
-                Current week number.
+        :param period_index:
+            Sequential index of the current period.
 
-            price:
-                Current asset price.
+        :param price:
+            Current asset price.
 
-            max_price:
-                Maximum price observed up to this point.
+        :param max_price:
+            Maximum price observed up to this point.
 
-            cash_remaining:
-                Available uninvested capital.
+        :param cash_remaining:
+            Available uninvested capital.
 
-        Returns:
-            Amount to invest during this week.
-        """
+        :return:
+            Amount to invest during the current period.
+    """
         pass

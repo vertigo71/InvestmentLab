@@ -1,8 +1,8 @@
-'''
+"""
 Created on 11 Oct 2026
 
 @author: mxarl
-'''
+"""
 
 """
 Adaptive DCA strategy.
@@ -17,23 +17,25 @@ from strategies.strategy import Strategy
 class DrawdownDCA(Strategy):
 
     def __init__(
-        self,
-        base_amount,
-        levels
+            self,
+            base_amount: float,
+            levels: list[tuple[float, float]]
     ):
         """
-        Args:
+        Creates a drawdown-based DCA strategy.
 
-            base_amount:
-                Weekly base contribution.
+        :param base_amount:
+            Base contribution amount for each period.
 
-            levels:
-                List of tuples:
+        :param levels:
+            Drawdown thresholds and associated multipliers.
+
+            Example:
 
                 [
-                    (0.10, 2),
-                    (0.20, 4),
-                    (0.30, 8)
+                    (10%, 2),
+                    (20%, 4),
+                    (30%, 8)
                 ]
         """
 
@@ -41,29 +43,43 @@ class DrawdownDCA(Strategy):
         self.levels = levels
 
     def contribution(
-        self,
-        week,
-        price,
-        max_price,
-        cash_remaining
+            self,
+            period_index: int,
+            price: float,
+            max_price: float,
+            cash_remaining: float
     ) -> float:
+        """
+        Calculates the contribution amount.
 
-        drawdown = 1 - price / max_price
+        :param period_index:
+            Sequential index of the current period.
 
-        multiplier = 1
+        :param price:
+            Current asset price.
+
+        :param max_price:
+            Maximum asset price observed so far.
+
+        :param cash_remaining:
+            Available uninvested capital.
+
+        :return:
+            Amount to invest during the current period.
+        """
+
+        drawdown = 1.0 - price / max_price
+
+        multiplier: float = 1.0
 
         for threshold, value in self.levels:
 
             if drawdown >= threshold:
                 multiplier = value
 
-        amount = (
-            self.base_amount
-            * multiplier
-        )
+        amount = self.base_amount * multiplier
 
         return min(
             amount,
             cash_remaining
         )
-

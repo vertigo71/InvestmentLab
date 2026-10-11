@@ -1,26 +1,43 @@
-'''
+"""
 Created on 11 Oct 2026
 
 @author: mxarl
-'''
+"""
 
 from models.portfolio import Portfolio
+from models.price_point import PricePoint
+from strategies.strategy import Strategy
+
 
 class BacktestEngine:
 
+    @staticmethod
     def run(
-        self,
-        prices,
-        strategy,
-        initial_capital
+            prices: list[PricePoint],
+            strategy: Strategy,
+            initial_capital: float
     ) -> dict[str, float]:
+        """
+        Executes a backtest.
+
+        :param prices:
+            Historical market data.
+
+        :param strategy:
+            Investment strategy to evaluate.
+
+        :param initial_capital:
+            Available capital at the beginning of the simulation.
+
+        :return:
+            Dictionary containing portfolio results.
+        """
 
         portfolio = Portfolio(initial_capital)
 
         for point in prices:
-
             contribution = strategy.contribution(
-                point.week,
+                point.period_index,
                 point.close,
                 point.max_close,
                 portfolio.cash_remaining

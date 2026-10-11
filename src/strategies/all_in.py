@@ -1,13 +1,13 @@
-'''
+"""
 Created on 11 Oct 2026
 
 @author: mxarl
-'''
+"""
 
 """
 All-In strategy.
 
-Invests all available capital on the first week.
+Invests all available capital on the first period.
 """
 
 from strategies.strategy import Strategy
@@ -16,18 +16,34 @@ from strategies.strategy import Strategy
 class AllIn(Strategy):
 
     def contribution(
-        self,
-        week: int,
-        price: float,
-        max_price: float,
-        cash_remaining: float
+            self,
+            period_index: int,
+            price: float,
+            max_price: float,
+            cash_remaining: float
     ) -> float:
+        """
+        Calculates the contribution amount.
 
-        # Invest everything on week zero.
-        if week == 0:
+        :param period_index:
+            Sequential index of the current period.
+
+        :param price:
+            Current asset price.
+
+        :param max_price:
+            Maximum price observed up to this point.
+
+        :param cash_remaining:
+            Available uninvested capital.
+
+        :return:
+            Amount to invest during the current period.
+        """
+
+        # Invest everything during the first period.
+        if period_index == 0:
             return cash_remaining
 
-        # No further purchases.
+        # No additional purchases afterward.
         return 0.0
-    
-    

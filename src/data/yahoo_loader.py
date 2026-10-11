@@ -4,9 +4,9 @@ Created on 11 Oct 2026
 @author: mxarl
 """
 
-'''
+"""
 Yahoo Finance historical data loader.
-'''
+"""
 
 import yfinance as yf  # type: ignore
 
@@ -21,33 +21,23 @@ class YahooLoader:
             start_date: str,
             end_date: str
     ) -> list[PricePoint]:
-
         """
         Loads historical market data from Yahoo Finance.
 
-        :Parameters:
-            ticker : str
-                Yahoo Finance ticker symbol.
+        :param ticker:
+            Yahoo Finance ticker symbol.
 
-            start_date : str
-                Download start date.
+        :param start_date:
+            Download start date in YYYY-MM-DD format.
 
-                Format:
-                    YYYY-MM-DD
+        :param end_date:
+            Download end date in YYYY-MM-DD format.
 
-            end_date : str
-                Download end date.
+        :return:
+            Historical periodic prices.
 
-                Format:
-                    YYYY-MM-DD
-
-        :Returns:
-            list[PricePoint]
-                Historical weekly prices.
-
-        :Raises:
-            ValueError
-                If no data is returned.
+        :raises ValueError:
+            If no data is returned.
         """
 
         # Download weekly candles.
@@ -68,29 +58,25 @@ class YahooLoader:
                 f"No data returned for ticker '{ticker}'"
             )
 
-        # Backtest data.
+        # Generated PricePoint objects.
         prices: list[PricePoint] = []
 
-        # Running all-time-high.
+        # Highest price observed so far.
         running_max: float = 0.0
 
-        # Iterate over rows using named attributes.
-        for week, row in enumerate(df.itertuples()):
+        for period_index, row in enumerate(df.itertuples()):
             close: float = float(row.Close)
-
 
             running_max = max(
                 running_max,
                 close
             )
 
-            prices.append(
-                PricePoint(
-                    week=week,
-                    date=row.Index.date(),
-                    close=close,
-                    max_close=running_max
-                )
-            )
+            prices.append(PricePoint(
+                period_index=period_index,
+                date=row.Index.date(),
+                close=close,
+                max_close=running_max
+            ))
 
         return prices
