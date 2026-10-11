@@ -1,10 +1,4 @@
 """
-Created on 11 Oct 2026
-
-@author: mxarl
-"""
-
-"""
 Defines the base contract for all investment strategies.
 
 Every strategy decides how much capital should be invested

@@ -1,8 +1,4 @@
-"""
-Created on 11 Oct 2026
 
-@author: mxarl
-"""
 
 from models.portfolio import Portfolio
 from models.price_point import PricePoint

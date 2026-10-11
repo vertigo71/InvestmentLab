@@ -1,10 +1,4 @@
 """
-Created on 11 Oct 2026
-
-@author: mxarl
-"""
-
-"""
 Yahoo Finance historical data loader.
 """
 

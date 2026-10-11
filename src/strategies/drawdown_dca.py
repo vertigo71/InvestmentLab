@@ -1,10 +1,4 @@
 """
-Created on 11 Oct 2026
-
-@author: mxarl
-"""
-
-"""
 Adaptive DCA strategy.
 
 Investment amount increases when the asset

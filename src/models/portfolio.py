@@ -1,9 +1,4 @@
 """
-Created on 10 Oct 2026
-
-@author: mxarl
-"""
-"""
 Tracks portfolio state during a backtest.
 """
 

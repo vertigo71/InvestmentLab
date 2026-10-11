@@ -1,10 +1,4 @@
 """
-Created on 11 Oct 2026
-
-@author: mxarl
-"""
-
-"""
 All-In strategy.
 
 Invests all available capital on the first period.
