@@ -1,7 +1,6 @@
-
-
 from models.portfolio import Portfolio
 from models.price_point import PricePoint
+from models.strategy_result import StrategyResult
 from strategies.strategy import Strategy
 
 
@@ -12,7 +11,7 @@ class BacktestEngine:
             prices: list[PricePoint],
             strategy: Strategy,
             initial_capital: float
-    ) -> dict[str, float]:
+    ) -> StrategyResult:
         """
         Executes a backtest.
 
@@ -26,7 +25,8 @@ class BacktestEngine:
             Available capital at the beginning of the simulation.
 
         :return:
-            Dictionary containing portfolio results.
+            Strategy result containing
+            final portfolio metrics.
         """
 
         portfolio = Portfolio(initial_capital)
@@ -46,8 +46,10 @@ class BacktestEngine:
 
         final_price = prices[-1].close
 
-        return {
-            "value": portfolio.value(final_price),
-            "shares": portfolio.shares,
-            "cash": portfolio.cash_remaining
-        }
+        final_value = portfolio.value(final_price)
+
+        return StrategyResult(
+            value=final_value,
+            shares=portfolio.shares,
+            cash=portfolio.cash_remaining
+        )

@@ -41,3 +41,9 @@ class AllIn(Strategy):
 
         # No additional purchases afterward.
         return 0.0
+
+    def name(self) -> str:
+        """
+        Returns the strategy name.
+        """
+        return "ALL_IN"

@@ -1,4 +1,3 @@
-
 from models.contribution_frequency import ContributionFrequency
 
 """
@@ -69,3 +68,9 @@ class DCA(Strategy):
             self.contribution_amount,
             cash_remaining
         )
+
+    def name(self) -> str:
+        """
+        Returns the strategy name.
+        """
+        return f"DCA_{self.frequency.name}"

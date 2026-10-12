@@ -95,3 +95,18 @@ class DrawdownDCA(Strategy):
             amount,
             cash_remaining
         )
+
+    def name(self) -> str:
+        """
+        Returns the strategy name.
+        """
+
+        levels = "_".join(
+            f"({threshold:.0%},{multiplier})"
+            for threshold, multiplier in self.levels
+        )
+
+        return (
+            f"DDCA_{self.frequency.name}_"
+            f"{levels}"
+        )

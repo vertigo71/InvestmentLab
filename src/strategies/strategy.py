@@ -46,3 +46,10 @@ class Strategy(ABC):
             Amount to invest during the current period.
     """
         pass
+
+    @abstractmethod
+    def name(self) -> str:
+        """
+        Returns a human-readable strategy name.
+        """
+        pass
