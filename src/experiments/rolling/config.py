@@ -10,7 +10,7 @@ from datetime import datetime
 # Project root directory.
 PROJECT_ROOT: Final = (
     Path(__file__).resolve()
-    .parent.parent.parent
+    .parent.parent.parent.parent
 )
 
 # Output directory.
@@ -55,4 +55,13 @@ CSV_OUTPUT_FILE: Final = (
         f"{WINDOW_YEARS}y_"
         f"{SAFE_TICKER}"
         f".csv"
+)
+
+# Rolling analysis CSV export file.
+ANALYSIS_CSV_OUTPUT_FILE: Final = (
+        OUTPUT_FOLDER /
+        f"{GENERATED_ON}_"
+        f"rolling_analysis_"
+        f"{WINDOW_YEARS}y_"
+        f"{SAFE_TICKER}.csv"
 )

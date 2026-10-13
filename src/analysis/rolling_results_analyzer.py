@@ -259,3 +259,43 @@ class RollingResultsAnalyzer:
             for strategy_name, values
             in ranks.items()
         }
+
+    @staticmethod
+    def build_analysis(
+            results: list[RollingWindowResult]
+    ) -> dict[str, dict]:
+        """
+        Builds the complete analysis.
+        """
+
+        return {
+            "Win Count":
+                RollingResultsAnalyzer.get_win_count(
+                    results
+                ),
+
+            "Average CAGR":
+                RollingResultsAnalyzer.get_average_cagr(
+                    results
+                ),
+
+            "Best CAGR":
+                RollingResultsAnalyzer.get_best_cagr(
+                    results
+                ),
+
+            "Worst CAGR":
+                RollingResultsAnalyzer.get_worst_cagr(
+                    results
+                ),
+
+            "CAGR Std Dev":
+                RollingResultsAnalyzer.get_cagr_std_dev(
+                    results
+                ),
+
+            "Average Rank":
+                RollingResultsAnalyzer.get_average_rank(
+                    results
+                )
+        }

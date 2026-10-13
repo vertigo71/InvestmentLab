@@ -21,7 +21,7 @@ from transformers.rolling_window_builder import (
     RollingWindowBuilder
 )
 
-from experiments.config import (
+from experiments.rolling.config import (
     INITIAL_CAPITAL,
     WINDOW_YEARS,
     TICKER,

@@ -3,7 +3,7 @@ Displays detailed results for each
 rolling analysis window.
 """
 
-from experiments.rolling_base import RollingBase
+from experiments.rolling.base import RollingBase
 
 from provider.market_context_provider import (
     MarketContextProvider
