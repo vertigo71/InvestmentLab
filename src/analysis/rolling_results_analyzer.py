@@ -224,7 +224,8 @@ class RollingResultsAnalyzer:
             # Sort strategies from best
             # to worst according to the
             # final portfolio value.
-            ordered_results = sorted(
+            # strategy_results: dict[str, StrategyResult]
+            ordered_result = sorted(
                 result.strategy_results.items(),
                 key=lambda item: item[1].value,
                 reverse=True
@@ -236,12 +237,10 @@ class RollingResultsAnalyzer:
             # 2 = second place
             # 3 = third place
             # ...
-            for rank, (
-                    strategy_name,
-                    _
-            ) in enumerate(
-                ordered_results,
-                start=1
+            # ordered_result: list[tuple[str, StrategyResult]]
+            for rank, (strategy_name, _) in enumerate(
+                    ordered_result,
+                    start=1
             ):
 
                 if strategy_name not in ranks:
@@ -257,7 +256,6 @@ class RollingResultsAnalyzer:
         return {
             strategy_name:
                 sum(values) / len(values)
-
             for strategy_name, values
             in ranks.items()
         }
