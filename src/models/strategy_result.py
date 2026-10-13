@@ -18,4 +18,26 @@ class StrategyResult:
     value: float
     shares: float
     cash: float
-    
+
+    def total_return(
+            self,
+            initial_capital: float
+    ) -> float:
+        """
+        Returns the total return.
+        """
+
+        return (
+                self.value / initial_capital
+        ) - 1
+
+    def cagr(
+            self,
+            initial_capital: float,
+            years: int
+    ) -> float:
+        """
+        Returns the annualized return.
+        """
+
+        return (self.value / initial_capital) ** (1 / years) - 1

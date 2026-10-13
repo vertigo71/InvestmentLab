@@ -19,7 +19,7 @@ from models.price_point import PricePoint
 from models.rolling_window import RollingWindow
 
 
-class RollingWindowAnalyzer:
+class RollingWindowBuilder:
     """
     Generates rolling windows from a list
     of historical prices.
@@ -127,7 +127,7 @@ class RollingWindowAnalyzer:
                 last_year - window_years + 1
         ):
             windows.append(
-                RollingWindowAnalyzer._create_window(
+                RollingWindowBuilder._create_window(
                     prices=prices,
                     start_year=start_year,
                     window_years=window_years

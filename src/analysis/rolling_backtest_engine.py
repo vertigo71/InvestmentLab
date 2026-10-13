@@ -3,16 +3,19 @@ Executes strategy comparisons across
 multiple rolling windows.
 """
 
-from strategies.strategy import Strategy
+from analysis.backtest_engine import BacktestEngine
 
 from models.rolling_window import RollingWindow
 from models.rolling_window_result import RollingWindowResult
+from models.strategy_result import StrategyResult
+
+from strategies.strategy import Strategy
 
 
 class RollingBacktestEngine:
     """
-    Executes backtests for multiple
-    strategies across rolling windows.
+    Executes backtests across multiple
+    rolling windows.
     """
 
     @staticmethod
@@ -22,8 +25,8 @@ class RollingBacktestEngine:
             initial_capital: float
     ) -> list[RollingWindowResult]:
         """
-        Executes strategy comparisons
-        across rolling windows.
+        Executes all strategies for all
+        rolling windows.
 
         :param windows:
             Rolling windows to evaluate.
@@ -40,6 +43,27 @@ class RollingBacktestEngine:
 
         results: list[RollingWindowResult] = []
 
-        # To be implemented.
+        for window in windows:
+
+            strategy_results: dict[str, StrategyResult] = {}
+
+            for strategy in strategies:
+                strategy_results[
+                    strategy.name()
+                ] = BacktestEngine.run(
+                    prices=window.prices,
+                    strategy=strategy,
+                    initial_capital=initial_capital
+                )
+
+            results.append(
+                RollingWindowResult(
+                    start_year=window.start_year,
+                    end_year=window.end_year,
+                    strategy_results=strategy_results
+                )
+            )
 
         return results
+
+
