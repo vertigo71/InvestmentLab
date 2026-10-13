@@ -5,26 +5,23 @@ Investment amount increases when the asset
 falls below previous highs.
 """
 
-from strategies.strategy import Strategy
 from models.contribution_frequency import ContributionFrequency
+from strategies.strategy import Strategy
 
 
 class DrawdownDCA(Strategy):
 
     def __init__(
             self,
-            base_amount: float,
             levels: list[tuple[float, float]],
             frequency: ContributionFrequency
     ):
         """
         Creates a drawdown-based DCA strategy.
 
-        :param base_amount:
-            Base contribution amount for each period.
-
         :param levels:
-            Drawdown thresholds and associated multipliers.
+            Drawdown thresholds and
+            associated multipliers.
 
             Example:
 
@@ -35,21 +32,23 @@ class DrawdownDCA(Strategy):
                 ]
 
         :param frequency:
-                Contribution frequency.
+            Contribution frequency.
 
-                Examples:
+            Examples:
 
-                    WEEKLY
-                    BIWEEKLY
-                    MONTHLY
+                WEEKLY
+
+                BIWEEKLY
+
+                MONTHLY
         """
 
-        self.base_amount = base_amount
         self.levels = levels
         self.frequency = frequency
 
     def contribution(
             self,
+            weekly_contribution: float,
             period_index: int,
             price: float,
             max_price: float,
@@ -57,6 +56,10 @@ class DrawdownDCA(Strategy):
     ) -> float:
         """
         Calculates the contribution amount.
+
+        :param weekly_contribution:
+            Base weekly contribution amount
+            proposed by the engine.
 
         :param period_index:
             Sequential index of the current period.
@@ -71,26 +74,46 @@ class DrawdownDCA(Strategy):
             Available uninvested capital.
 
         :return:
-            Amount to invest during the current period.
+            Amount to invest during
+            the current period.
         """
 
-        # Skip periods that are not contribution periods.
-        if period_index % self.frequency.value != 0:
+        # Skip periods that are not
+        # contribution periods.
+        if (
+                period_index %
+                self.frequency.value
+                != 0
+        ):
             return 0.0
 
-        # Calculate current drawdown from the historical high.
-        drawdown = 1.0 - price / max_price
+        # Calculate current drawdown
+        # from the historical high.
+        drawdown = (
+                1.0 -
+                price / max_price
+        )
 
         multiplier: float = 1.0
 
-        # Determine the contribution multiplier.
+        # Determine the contribution
+        # multiplier.
         for threshold, value in self.levels:
 
             if drawdown >= threshold:
                 multiplier = value
 
-        amount = self.base_amount * multiplier
+        # Convert the weekly contribution
+        # into a contribution matching the
+        # configured frequency.
+        amount = (
+                weekly_contribution *
+                self.frequency.value *
+                multiplier
+        )
 
+        # Never invest more cash
+        # than available.
         return min(
             amount,
             cash_remaining
@@ -103,7 +126,8 @@ class DrawdownDCA(Strategy):
 
         levels = "_".join(
             f"({threshold:.0%},{multiplier})"
-            for threshold, multiplier in self.levels
+            for threshold, multiplier
+            in self.levels
         )
 
         return (

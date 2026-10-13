@@ -11,37 +11,40 @@ class DCA(Strategy):
 
     def __init__(
             self,
-            contribution_amount: float,
             frequency: ContributionFrequency
     ):
         """
         Creates a DCA strategy.
 
-        :param contribution_amount:
-                Fixed amount invested each period.
-
         :param frequency:
-                Contribution frequency.
+            Contribution frequency.
 
-                Examples:
+            Examples:
 
-                    WEEKLY
-                    BIWEEKLY
-                    MONTHLY
+                WEEKLY
+
+                BIWEEKLY
+
+                MONTHLY
         """
 
-        self.contribution_amount = contribution_amount
         self.frequency = frequency
 
     def contribution(
             self,
+            weekly_contribution: float,
             period_index: int,
             price: float,
             max_price: float,
             cash_remaining: float
     ) -> float:
         """
-        Invests a fixed amount every period.
+        Invests a fixed amount at the
+        configured frequency.
+
+        :param weekly_contribution:
+            Base weekly contribution amount
+            proposed by the engine.
 
         :param period_index:
             Sequential index of the current period.
@@ -56,16 +59,31 @@ class DCA(Strategy):
             Available uninvested capital.
 
         :return:
-            Amount to invest during the current period.
+            Amount to invest during
+            the current period.
         """
 
-        # Skip periods that are not contribution periods.
-        if period_index % self.frequency.value != 0:
+        # Skip periods that are not
+        # contribution periods.
+        if (
+                period_index %
+                self.frequency.value
+                != 0
+        ):
             return 0.0
 
-        # Never invest more cash than available.
+        # Convert the weekly contribution
+        # into a contribution matching the
+        # configured frequency.
+        amount = (
+                weekly_contribution *
+                self.frequency.value
+        )
+
+        # Never invest more cash
+        # than available.
         return min(
-            self.contribution_amount,
+            amount,
             cash_remaining
         )
 
@@ -73,4 +91,8 @@ class DCA(Strategy):
         """
         Returns the strategy name.
         """
-        return f"DCA_{self.frequency.name}"
+
+        return (
+            f"DCA_"
+            f"{self.frequency.name}"
+        )

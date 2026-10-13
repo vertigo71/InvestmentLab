@@ -1,3 +1,5 @@
+from math import floor
+
 from models.portfolio import Portfolio
 from models.price_point import PricePoint
 from models.strategy_result import StrategyResult
@@ -22,21 +24,38 @@ class BacktestEngine:
             Investment strategy to evaluate.
 
         :param initial_capital:
-            Available capital at the beginning of the simulation.
+            Available capital at the
+            beginning of the simulation.
 
         :return:
             Strategy result containing
             final portfolio metrics.
         """
 
-        portfolio = Portfolio(initial_capital)
+        portfolio = Portfolio(
+            initial_capital
+        )
+
+        # Reserve the final period
+        # for portfolio valuation.
+        investment_periods = (
+                len(prices) - 1
+        )
+
+        # Base contribution amount
+        # proposed to all strategies.
+        contribution_amount = floor(
+            initial_capital /
+            investment_periods
+        )
 
         for point in prices:
             contribution = strategy.contribution(
-                point.period_index,
-                point.close,
-                point.max_close,
-                portfolio.cash_remaining
+                weekly_contribution=contribution_amount,
+                period_index=point.period_index,
+                price=point.close,
+                max_price=point.max_close,
+                cash_remaining=portfolio.cash_remaining
             )
 
             portfolio.buy(
@@ -44,9 +63,13 @@ class BacktestEngine:
                 point.close
             )
 
-        final_price = prices[-1].close
+        final_price = (
+            prices[-1].close
+        )
 
-        final_value = portfolio.value(final_price)
+        final_value = portfolio.value(
+            final_price
+        )
 
         return StrategyResult(
             value=final_value,

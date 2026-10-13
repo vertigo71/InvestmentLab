@@ -1,6 +1,7 @@
 """
 Aggregates rolling window backtest results.
 """
+
 from statistics import stdev
 
 from models.rolling_window_result import RollingWindowResult
@@ -16,7 +17,6 @@ class RollingResultsAnalyzer:
     def get_win_count(
             results: list[RollingWindowResult]
     ) -> dict[str, int]:
-
         """
         Counts how many rolling windows
         are won by each strategy.
@@ -53,13 +53,17 @@ class RollingResultsAnalyzer:
 
     @staticmethod
     def _get_strategy_cagrs(
-            results: list[RollingWindowResult],
-            initial_capital: float,
-            years: int
+            results: list[RollingWindowResult]
     ) -> dict[str, list[float]]:
         """
         Returns all CAGR values grouped
         by strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            CAGR values grouped by strategy.
         """
 
         cagrs: dict[str, list[float]] = {}
@@ -76,8 +80,8 @@ class RollingResultsAnalyzer:
 
                 cagrs[strategy_name].append(
                     strategy_result.cagr(
-                        initial_capital,
-                        years
+                        result.initial_capital,
+                        result.window_years
                     )
                 )
 
@@ -85,85 +89,113 @@ class RollingResultsAnalyzer:
 
     @staticmethod
     def get_average_cagr(
-            results: list[RollingWindowResult],
-            initial_capital: float,
-            years: int
+            results: list[RollingWindowResult]
     ) -> dict[str, float]:
+        """
+        Returns the average CAGR
+        obtained by each strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            Average CAGR per strategy.
+        """
 
         strategy_cagrs = (
             RollingResultsAnalyzer._get_strategy_cagrs(
-                results,
-                initial_capital,
-                years
+                results
             )
         )
 
         return {
             strategy_name:
                 sum(values) / len(values)
+
             for strategy_name, values
             in strategy_cagrs.items()
         }
 
     @staticmethod
     def get_best_cagr(
-            results: list[RollingWindowResult],
-            initial_capital: float,
-            years: int
+            results: list[RollingWindowResult]
     ) -> dict[str, float]:
+        """
+        Returns the best CAGR obtained
+        by each strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            Best CAGR per strategy.
+        """
 
         strategy_cagrs = (
             RollingResultsAnalyzer._get_strategy_cagrs(
-                results,
-                initial_capital,
-                years
+                results
             )
         )
 
         return {
             strategy_name: max(values)
+
             for strategy_name, values
             in strategy_cagrs.items()
         }
 
     @staticmethod
     def get_worst_cagr(
-            results: list[RollingWindowResult],
-            initial_capital: float,
-            years: int
+            results: list[RollingWindowResult]
     ) -> dict[str, float]:
+        """
+        Returns the worst CAGR obtained
+        by each strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            Worst CAGR per strategy.
+        """
 
         strategy_cagrs = (
             RollingResultsAnalyzer._get_strategy_cagrs(
-                results,
-                initial_capital,
-                years
+                results
             )
         )
 
         return {
             strategy_name: min(values)
+
             for strategy_name, values
             in strategy_cagrs.items()
         }
 
     @staticmethod
     def get_cagr_std_dev(
-            results: list[RollingWindowResult],
-            initial_capital: float,
-            years: int
+            results: list[RollingWindowResult]
     ) -> dict[str, float]:
+        """
+        Returns the standard deviation
+        of CAGR values for each strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            CAGR standard deviation per strategy.
+        """
 
         strategy_cagrs = (
             RollingResultsAnalyzer._get_strategy_cagrs(
-                results,
-                initial_capital,
-                years
+                results
             )
         )
 
         return {
             strategy_name: stdev(values)
+
             for strategy_name, values
             in strategy_cagrs.items()
         }

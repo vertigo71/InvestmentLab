@@ -60,10 +60,9 @@ class RollingBacktestEngine:
                 RollingWindowResult(
                     start_year=window.start_year,
                     end_year=window.end_year,
+                    initial_capital=initial_capital,
                     strategy_results=strategy_results
                 )
             )
 
         return results
-
-
