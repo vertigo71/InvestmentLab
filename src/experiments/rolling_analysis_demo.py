@@ -172,6 +172,26 @@ def main():
             f"{std_dev:.2%}"
         )
 
+    print("\nAverage Rank")
+
+    average_ranks = (
+        RollingResultsAnalyzer.get_average_rank(
+            results
+        )
+    )
+
+    for (
+            strategy_name,
+            rank
+    ) in sorted(
+        average_ranks.items(),
+        key=lambda item: item[1]
+    ):
+        print(
+            f"{strategy_name}: "
+            f"{rank:.2f}"
+        )
+
 
 if __name__ == "__main__":
     main()

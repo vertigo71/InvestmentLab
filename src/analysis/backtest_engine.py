@@ -54,7 +54,8 @@ class BacktestEngine:
                 weekly_contribution=contribution_amount,
                 period_index=point.period_index,
                 price=point.close,
-                max_price=point.max_close,
+                running_max=point.running_max,
+                running_avg=point.running_avg,
                 cash_remaining=portfolio.cash_remaining
             )
 

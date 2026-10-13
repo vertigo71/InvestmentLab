@@ -2,10 +2,12 @@
 Adaptive DCA strategy.
 
 Investment amount increases when the asset
-falls below previous highs.
+falls below a reference price.
 """
 
 from models.contribution_frequency import ContributionFrequency
+from models.reference_price import ReferencePrice
+
 from strategies.strategy import Strategy
 
 
@@ -14,7 +16,8 @@ class DrawdownDCA(Strategy):
     def __init__(
             self,
             levels: list[tuple[float, float]],
-            frequency: ContributionFrequency
+            frequency: ContributionFrequency,
+            reference_price: ReferencePrice
     ):
         """
         Creates a drawdown-based DCA strategy.
@@ -41,17 +44,29 @@ class DrawdownDCA(Strategy):
                 BIWEEKLY
 
                 MONTHLY
+
+        :param reference_price:
+            Price reference used to
+            calculate the current drawdown.
+
+            Examples:
+
+                RUNNING_MAX
+
+                RUNNING_AVG
         """
 
         self.levels = levels
         self.frequency = frequency
+        self.reference_price = reference_price
 
     def contribution(
             self,
             weekly_contribution: float,
             period_index: int,
             price: float,
-            max_price: float,
+            running_max: float,
+            running_avg: float,
             cash_remaining: float
     ) -> float:
         """
@@ -67,8 +82,13 @@ class DrawdownDCA(Strategy):
         :param price:
             Current asset price.
 
-        :param max_price:
+        :param running_max:
             Maximum asset price observed so far.
+
+        :param running_avg:
+            Average price observed from
+            the beginning of the simulation
+            up to and including this period.
 
         :param cash_remaining:
             Available uninvested capital.
@@ -87,11 +107,21 @@ class DrawdownDCA(Strategy):
         ):
             return 0.0
 
+        # Select the reference price
+        # used to calculate drawdown.
+        reference_price = running_max
+
+        if (
+                self.reference_price ==
+                ReferencePrice.RUNNING_AVG
+        ):
+            reference_price = running_avg
+
         # Calculate current drawdown
-        # from the historical high.
+        # from the selected reference.
         drawdown = (
                 1.0 -
-                price / max_price
+                price / reference_price
         )
 
         multiplier: float = 1.0
@@ -130,7 +160,16 @@ class DrawdownDCA(Strategy):
             in self.levels
         )
 
+        reference = (
+            "MAX"
+            if self.reference_price ==
+               ReferencePrice.RUNNING_MAX
+            else "AVG"
+        )
+
         return (
-            f"DDCA_{self.frequency.name}_"
+            f"DDCA_"
+            f"{reference}_"
+            f"{self.frequency.name}_"
             f"{levels}"
         )

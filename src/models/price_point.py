@@ -27,13 +27,21 @@ class PricePoint:
     :param close:
         Closing price for the period.
 
-    :param max_close:
-        Highest closing price observed from the
-        beginning of the simulation up to and
-        including this period.
+    :param running_max:
+        Highest closing price observed
+        from the beginning of the
+        simulation up to and including
+        this period.
+
+    :param running_avg:
+        Average closing price observed
+        from the beginning of the
+        simulation up to and including
+        this period.
     """
 
     period_index: int
     date: date
     close: float
-    max_close: float
+    running_max: float
+    running_avg: float

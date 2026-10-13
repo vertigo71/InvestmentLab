@@ -199,3 +199,65 @@ class RollingResultsAnalyzer:
             for strategy_name, values
             in strategy_cagrs.items()
         }
+
+    @staticmethod
+    def get_average_rank(
+            results: list[RollingWindowResult]
+    ) -> dict[str, float]:
+        """
+        Returns the average rank
+        obtained by each strategy.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            Average rank per strategy.
+        """
+
+        # Rank history grouped
+        # by strategy.
+        ranks: dict[str, list[int]] = {}
+
+        for result in results:
+
+            # Sort strategies from best
+            # to worst according to the
+            # final portfolio value.
+            ordered_results = sorted(
+                result.strategy_results.items(),
+                key=lambda item: item[1].value,
+                reverse=True
+            )
+
+            # Assign ranks:
+            #
+            # 1 = best strategy
+            # 2 = second place
+            # 3 = third place
+            # ...
+            for rank, (
+                    strategy_name,
+                    _
+            ) in enumerate(
+                ordered_results,
+                start=1
+            ):
+
+                if strategy_name not in ranks:
+                    ranks[strategy_name] = []
+
+                ranks[strategy_name].append(
+                    rank
+                )
+
+        # Calculate the average rank
+        # achieved by each strategy
+        # across all rolling windows.
+        return {
+            strategy_name:
+                sum(values) / len(values)
+
+            for strategy_name, values
+            in ranks.items()
+        }

@@ -15,7 +15,8 @@ class AllIn(Strategy):
             weekly_contribution: float,
             period_index: int,
             price: float,
-            max_price: float,
+            running_max: float,
+            running_avg: float,
             cash_remaining: float
     ) -> float:
         """
@@ -34,9 +35,14 @@ class AllIn(Strategy):
         :param price:
             Current asset price.
 
-        :param max_price:
+        :param running_max:
             Maximum price observed up to
             this point.
+
+        :param running_avg:
+            Average price observed from
+            the beginning of the simulation
+            up to and including this period.
 
         :param cash_remaining:
             Available uninvested capital.

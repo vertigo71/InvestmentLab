@@ -59,12 +59,17 @@ class RollingWindowBuilder:
             if start_year <= point.date.year < end_year
         ]
 
-        # Highest price observed within
-        # the current rolling window.
+        # Highest closing price observed
+        # within the current rolling window.
         running_max: float = 0.0
 
-        # Price points rebuilt for this window.
-        # with recalculated max_close and period_index.
+        # Sum of closing prices observed
+        # within the current rolling window.
+        running_sum: float = 0.0
+
+        # Price points rebuilt for this window
+        # with recalculated running values
+        # and period indexes.
         recalculated_prices: list[PricePoint] = []
 
         for period_index, point in enumerate(window_prices):
@@ -73,12 +78,20 @@ class RollingWindowBuilder:
                 point.close
             )
 
+            running_sum += point.close
+
+            running_avg = (
+                    running_sum /
+                    (period_index + 1)
+            )
+
             recalculated_prices.append(
                 PricePoint(
                     period_index=period_index,
                     date=point.date,
                     close=point.close,
-                    max_close=running_max
+                    running_max=running_max,
+                    running_avg=running_avg
                 )
             )
 

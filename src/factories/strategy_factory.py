@@ -4,6 +4,7 @@ backtesting experiments.
 """
 
 from models.contribution_frequency import ContributionFrequency
+from models.reference_price import ReferencePrice
 
 from strategies.all_in import AllIn
 from strategies.dca import DCA
@@ -41,7 +42,8 @@ class StrategyFactory:
                     (0.02, 3),
                     (0.03, 4)
                 ],
-                frequency=ContributionFrequency.WEEKLY
+                frequency=ContributionFrequency.WEEKLY,
+                reference_price=ReferencePrice.RUNNING_MAX
             ),
 
             DrawdownDCA(
@@ -51,7 +53,29 @@ class StrategyFactory:
                     (0.02, 4),
                     (0.03, 8)
                 ],
-                frequency=ContributionFrequency.MONTHLY
-            )
+                frequency=ContributionFrequency.MONTHLY,
+                reference_price=ReferencePrice.RUNNING_MAX
+            ),
+
+            DrawdownDCA(
+                levels=[
+                    (0.01, 2),
+                    (0.02, 3),
+                    (0.03, 4)
+                ],
+                frequency=ContributionFrequency.WEEKLY,
+                reference_price=ReferencePrice.RUNNING_AVG
+            ),
+
+            DrawdownDCA(
+                levels=[
+                    (0.0, 0.5),
+                    (0.01, 2),
+                    (0.02, 4),
+                    (0.03, 8)
+                ],
+                frequency=ContributionFrequency.MONTHLY,
+                reference_price=ReferencePrice.RUNNING_AVG
+            ),
 
         ]

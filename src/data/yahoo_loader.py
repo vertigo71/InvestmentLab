@@ -89,8 +89,11 @@ class YahooLoader:
         # Generated PricePoint objects.
         prices: list[PricePoint] = []
 
-        # Highest price observed so far.
+        # Highest closing price observed so far.
         running_max: float = 0.0
+
+        # Sum of closing prices observed so far.
+        running_sum: float = 0.0
 
         for period_index, row in enumerate(df.itertuples()):
             close: float = float(row.Close)
@@ -100,11 +103,21 @@ class YahooLoader:
                 close
             )
 
-            prices.append(PricePoint(
-                period_index=period_index,
-                date=row.Index.date(),
-                close=close,
-                max_close=running_max
-            ))
+            running_sum += close
+
+            running_avg = (
+                    running_sum /
+                    (period_index + 1)
+            )
+
+            prices.append(
+                PricePoint(
+                    period_index=period_index,
+                    date=row.Index.date(),
+                    close=close,
+                    running_max=running_max,
+                    running_avg=running_avg
+                )
+            )
 
         return prices
