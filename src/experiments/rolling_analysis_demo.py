@@ -16,28 +16,7 @@ from analysis.rolling_results_analyzer import (
     RollingResultsAnalyzer
 )
 
-from data.yahoo_loader import YahooLoader
-
-from factories.strategy_factory import (
-    StrategyFactory
-)
-
-from transformers.rolling_window_builder import (
-    RollingWindowBuilder
-)
-
-INITIAL_CAPITAL: Final = 100000
-WINDOW_YEARS: Final = 3
-
-# Available datasets:
-#
-# URTH  -> 2012-
-# VT    -> 2008-
-# ^GSPC -> 1990-
-TICKER: Final = "^GSPC"
-
-START_DATE: Final = "1990-01-01"
-END_DATE: Final = "2028-01-01"
+from experiments.rolling_base import RollingBase
 
 
 def main():
@@ -47,25 +26,8 @@ def main():
     performance statistics.
     """
 
-    prices = YahooLoader.load(
-        ticker=TICKER,
-        start_date=START_DATE,
-        end_date=END_DATE
-    )
-
-    windows = (
-        RollingWindowBuilder.create_windows(
-            prices=prices,
-            window_years=WINDOW_YEARS
-        )
-    )
-
-    strategies = StrategyFactory.create()
-
-    results = RollingBacktestEngine.run(
-        windows=windows,
-        strategies=strategies,
-        initial_capital=INITIAL_CAPITAL
+    results = (
+        RollingBase.build_results()
     )
 
     print("\nWin Count")
