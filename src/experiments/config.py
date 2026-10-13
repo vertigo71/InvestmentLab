@@ -5,6 +5,7 @@ rolling-window experiments.
 
 from pathlib import Path
 from typing import Final
+from datetime import datetime
 
 # Project root directory.
 PROJECT_ROOT: Final = (
@@ -36,7 +37,11 @@ TICKER: Final = "^GSPC"
 START_DATE: Final = "1990-01-01"
 
 END_DATE: Final = "2028-01-01"
-
+GENERATED_ON: Final = (
+    datetime.now().strftime(
+        "%Y%m%d"
+    )
+)
 # File-system safe ticker symbol.
 SAFE_TICKER: Final = (
     TICKER.replace("^", "")
@@ -45,7 +50,9 @@ SAFE_TICKER: Final = (
 # CSV export file.
 CSV_OUTPUT_FILE: Final = (
         OUTPUT_FOLDER /
+        f"{GENERATED_ON}_"
         f"rolling_results_"
         f"{WINDOW_YEARS}y_"
-        f"{SAFE_TICKER}.csv"
+        f"{SAFE_TICKER}"
+        f".csv"
 )
