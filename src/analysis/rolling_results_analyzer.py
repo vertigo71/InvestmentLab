@@ -54,7 +54,7 @@ class RollingResultsAnalyzer:
             wins[winner_name] += 1
 
         return wins
-    
+
     @staticmethod
     def _get_strategy_cagrs(
             results: list[RollingWindowResult]

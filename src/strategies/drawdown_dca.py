@@ -155,7 +155,7 @@ class DrawdownDCA(Strategy):
         """
 
         levels = "_".join(
-            f"({threshold:.0%},{multiplier})"
+            f"({threshold:.0%};{multiplier})"
             for threshold, multiplier
             in self.levels
         )
