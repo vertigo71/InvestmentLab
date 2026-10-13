@@ -28,29 +28,33 @@ class RollingResultsAnalyzer:
             Number of wins per strategy.
         """
 
-        wins: dict[str, int] = {}
+        if not results:
+            return {}
+
+        # Initialize all strategies
+        # with zero wins so that
+        # strategies that never win
+        # are still included in the
+        # returned dictionary.
+        wins: dict[str, int] = {
+            strategy_name: 0
+            for strategy_name in (
+                results[0]
+                .strategy_results
+                .keys()
+            )
+        }
 
         for result in results:
-
-            winner_name: str = ""
-            winner_value: float = float("-inf")
-
-            for (
-                    strategy_name,
-                    strategy_result
-            ) in result.strategy_results.items():
-
-                if strategy_result.value > winner_value:
-                    winner_name = strategy_name
-                    winner_value = strategy_result.value
-
-            if winner_name not in wins:
-                wins[winner_name] = 0
+            winner_name = max(
+                result.strategy_results.items(),
+                key=lambda item: item[1].value
+            )[0]
 
             wins[winner_name] += 1
 
         return wins
-
+    
     @staticmethod
     def _get_strategy_cagrs(
             results: list[RollingWindowResult]

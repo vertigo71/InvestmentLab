@@ -1,8 +1,14 @@
 """
 Aggregated rolling strategy analysis.
 """
-from analysis.rolling_results_analyzer import RollingResultsAnalyzer
-from experiments.rolling.base import RollingBase
+
+from analysis.rolling_results_analyzer import (
+    RollingResultsAnalyzer
+)
+
+from experiments.rolling.base import (
+    RollingBase
+)
 
 
 def main():
@@ -20,75 +26,52 @@ def main():
         )
     )
 
-    print("\nWin Count")
+    for (
+            metric_name,
+            metric
+    ) in analysis.items():
 
-    for strategy_name, value in sorted(
-            analysis["wins"].items(),
+        print(
+            f"\n{metric_name}"
+        )
+
+        reverse = (
+                metric_name !=
+                "Average Rank"
+        )
+
+        for (
+                strategy_name,
+                value
+        ) in sorted(
+            metric.items(),
             key=lambda item: item[1],
-            reverse=True
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value}"
-        )
+            reverse=reverse
+        ):
 
-    print("\nAverage CAGR")
+            if isinstance(
+                    value,
+                    int
+            ):
+                formatted = f"{value}"
 
-    for strategy_name, value in sorted(
-            analysis["average_cagr"].items(),
-            key=lambda item: item[1],
-            reverse=True
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value:.2%}"
-        )
+            elif (
+                    "Rank"
+                    in metric_name
+            ):
+                formatted = (
+                    f"{value:.2f}"
+                )
 
-    print("\nBest CAGR")
+            else:
+                formatted = (
+                    f"{value:.2%}"
+                )
 
-    for strategy_name, value in sorted(
-            analysis["best_cagr"].items(),
-            key=lambda item: item[1],
-            reverse=True
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value:.2%}"
-        )
-
-    print("\nWorst CAGR")
-
-    for strategy_name, value in sorted(
-            analysis["worst_cagr"].items(),
-            key=lambda item: item[1],
-            reverse=True
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value:.2%}"
-        )
-
-    print("\nCAGR Std Dev")
-
-    for strategy_name, value in sorted(
-            analysis["std_dev"].items(),
-            key=lambda item: item[1]
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value:.2%}"
-        )
-
-    print("\nAverage Rank")
-
-    for strategy_name, value in sorted(
-            analysis["average_rank"].items(),
-            key=lambda item: item[1]
-    ):
-        print(
-            f"{strategy_name}: "
-            f"{value:.2f}"
-        )
+            print(
+                f"{strategy_name}: "
+                f"{formatted}"
+            )
 
 
 if __name__ == "__main__":
