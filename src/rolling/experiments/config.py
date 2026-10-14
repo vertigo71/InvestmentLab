@@ -31,10 +31,11 @@ WINDOW_YEARS: Final = 3
 
 # Available datasets:
 #
-# URTH  -> 2012-
-# VT    -> 2008-
-# ^GSPC -> 1990-
-TICKER: Final = "^GSPC"
+# iShares MSCI World ETF (URTH)  -> 2012-
+# Vanguard Total World Stock Index Fund ETF Shares (VT)    -> 2008-
+# S&P 500 (^GSPC) -> 1990-
+# Vanguard Global Stock Index Inv EUR Acc (0P00000RQC.F) 2018-
+TICKER: Final = "0P00000RQC.F"
 
 # Historical data download range.
 START_DATE: Final = "1990-01-01"
