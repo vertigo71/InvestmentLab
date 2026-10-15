@@ -15,7 +15,8 @@ class YahooLoader:
     def load(
             ticker: str,
             start_date: str,
-            end_date: str
+            end_date: str,
+            auto_adjust: bool = True
     ) -> list[PricePoint]:
         """
         Loads historical market data from Yahoo Finance.
@@ -29,6 +30,18 @@ class YahooLoader:
         :param end_date:
             Download end date in YYYY-MM-DD format.
 
+        :param auto_adjust:
+            Whether Yahoo Finance should
+            automatically adjust historical
+            prices to account for dividends
+            and splits.
+
+            True returns adjusted prices and
+            reflects total return assuming
+            dividends are reinvested.
+
+            False returns raw market prices.
+
         :return:
             Historical periodic prices.
 
@@ -41,7 +54,8 @@ class YahooLoader:
             ticker,
             start=start_date,
             end=end_date,
-            interval="1wk"
+            interval="1wk",
+            auto_adjust=auto_adjust
         )
 
         if df is None:
