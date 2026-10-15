@@ -33,25 +33,30 @@ class StrategyFactory:
             AllIn(),
 
             DCA(
-                frequency=ContributionFrequency.WEEKLY
+                frequency=ContributionFrequency.BIWEEKLY
+            ),
+
+            DCA(
+                frequency=ContributionFrequency.MONTHLY
             ),
 
             DrawdownDCA(
                 levels=[
                     (0.1, 2),
                     (0.2, 3),
-                    (0.3, 4)
+                    (0.3, 4),
+                    (0.4, 5),
                 ],
-                frequency=ContributionFrequency.WEEKLY,
+                frequency=ContributionFrequency.BIWEEKLY,
                 reference_price=ReferencePrice.RUNNING_MAX
             ),
 
             DrawdownDCA(
                 levels=[
-                    (0.0, 0.5),
                     (0.1, 2),
-                    (0.2, 4),
-                    (0.3, 8)
+                    (0.2, 3),
+                    (0.3, 4),
+                    (0.4, 5),
                 ],
                 frequency=ContributionFrequency.MONTHLY,
                 reference_price=ReferencePrice.RUNNING_MAX
@@ -61,18 +66,19 @@ class StrategyFactory:
                 levels=[
                     (0.1, 2),
                     (0.2, 3),
-                    (0.3, 4)
+                    (0.3, 4),
+                    (0.4, 5),
                 ],
-                frequency=ContributionFrequency.WEEKLY,
+                frequency=ContributionFrequency.BIWEEKLY,
                 reference_price=ReferencePrice.RUNNING_AVG
             ),
 
             DrawdownDCA(
                 levels=[
-                    (0.0, 0.5),
                     (0.1, 2),
-                    (0.2, 4),
-                    (0.3, 8)
+                    (0.2, 3),
+                    (0.3, 4),
+                    (0.4, 5),
                 ],
                 frequency=ContributionFrequency.MONTHLY,
                 reference_price=ReferencePrice.RUNNING_AVG
