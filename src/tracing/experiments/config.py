@@ -29,7 +29,7 @@ WINDOW_YEARS: Final = 3
 
 # Strategy name used in exports.
 STRATEGY_NAME: Final = (
-    "DDCA_WEEKLY_02_3_4_5"
+    "DCA_BIWEEKLY"
 )
 
 # File-system safe ticker symbol.

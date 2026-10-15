@@ -12,6 +12,7 @@ from core.models.reference_price import ReferencePrice
 from core.providers.yahoo_loader import (
     YahooLoader
 )
+from core.strategies.dca import DCA
 from core.strategies.drawdown_dca import DrawdownDCA
 
 from tracing.engines.strategy_tracer import (
@@ -73,16 +74,15 @@ def main():
     )
 
     strategy = DrawdownDCA(
-        levels=[
-            (0.0, 1),
-            (0.01, 2),
-            (0.02, 3),
-            (0.03, 4),
-            (0.04, 5),
-        ],
-        frequency=ContributionFrequency.WEEKLY,
-        reference_price=ReferencePrice.RUNNING_MAX
-    )
+                levels=[
+                    (0.01, 2),
+                    (0.02, 3),
+                    (0.03, 4),
+                    (0.04, 5),
+                ],
+                frequency=ContributionFrequency.BIWEEKLY,
+                reference_price=ReferencePrice.RUNNING_AVG
+            )
 
     trace = StrategyTracer.run(
         ticker=TICKER,
