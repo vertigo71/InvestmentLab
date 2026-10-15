@@ -40,7 +40,8 @@ class Portfolio:
 
     def value(self, current_price: float) -> float:
         """
-        Returns current portfolio valuation.
+        Returns the invested asset value
+        at the specified market price.
         """
 
         return self.shares * current_price

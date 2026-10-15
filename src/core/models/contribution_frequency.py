@@ -1,5 +1,3 @@
-
-
 from enum import Enum
 
 
@@ -19,8 +17,10 @@ class ContributionFrequency(Enum):
             Contribute every 2 periods.
 
         MONTHLY:
-            Contribute every 4 periods when using
-            weekly market data.
+                Contribute every 4 periods when
+                using weekly market data. This is
+                an approximation of monthly
+                investing.
     """
 
     WEEKLY = 1

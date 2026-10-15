@@ -40,8 +40,13 @@ class StrategySimulator:
             initial_capital
         )
 
-        # Reserve the final period
-        # for portfolio valuation.
+        # Number of contribution periods
+        # used to calculate the base
+        # contribution amount.
+        #
+        # Subtract one period to avoid
+        # allocating more capital than
+        # available due to rounding.
         investment_periods = (
                 len(prices) - 1
         )

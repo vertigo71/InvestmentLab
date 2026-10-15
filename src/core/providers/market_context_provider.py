@@ -1,8 +1,6 @@
 """
-Provides historical market context
-for rolling window analysis.
+Provides historical market context.
 """
-
 
 class MarketContextProvider:
     """
@@ -76,8 +74,10 @@ class MarketContextProvider:
             end_year: int
     ) -> list[str]:
         """
-        Returns the market context associated
-        with a rolling window.
+        Returns the market context for all
+        years in the specified range.
+
+        The end year is excluded.
         """
 
         return [
