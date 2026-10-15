@@ -8,7 +8,7 @@ the application is working correctly.
 
 from typing import Final
 
-from backtest.engines.backtest_engine import BacktestEngine
+from core.engines.strategy_simulator import StrategySimulator
 from core.providers.yahoo_loader import YahooLoader
 from core.strategies.all_in import AllIn
 
@@ -27,7 +27,7 @@ def main():
         end_date="2019-01-01"
     )
 
-    result = BacktestEngine.run(
+    result = StrategySimulator.run(
         prices=prices,
         strategy=AllIn(),
         initial_capital=INITIAL_CAPITAL

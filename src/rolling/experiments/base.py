@@ -2,14 +2,13 @@
 Shared functionality used by
 rolling-window experiments.
 """
-
 from rolling.engines.rolling_backtest_engine import (
     RollingBacktestEngine
 )
 
 from core.providers.yahoo_loader import YahooLoader
 
-from core.factories.strategy_factory import (
+from rolling.factories.strategy_factory import (
     StrategyFactory
 )
 
@@ -22,12 +21,12 @@ from rolling.transformers.rolling_window_builder import (
 )
 
 from rolling.experiments.config import (
-    INITIAL_CAPITAL,
     WINDOW_YEARS,
     TICKER,
     START_DATE,
     END_DATE
 )
+from core.config import INITIAL_CAPITAL
 
 
 class RollingBase:

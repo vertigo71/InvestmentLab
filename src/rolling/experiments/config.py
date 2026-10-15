@@ -1,64 +1,44 @@
 """
-Shared configuration used by
+Configuration used by
 rolling-window experiments.
 """
 
-from pathlib import Path
 from typing import Final
-from datetime import datetime
 
-# Project root directory.
-PROJECT_ROOT: Final = (
-    Path(__file__).resolve()
-        .parent      # experiments
-        .parent      # rolling
-        .parent      # src
-        .parent      # project
+from core.config import (
+    GENERATED_ON,
+    OUTPUT_FOLDER
 )
 
-# Output directory.
-OUTPUT_FOLDER: Final = (
-        PROJECT_ROOT / "outputs"
-)
-
-# Initial portfolio value used by
-# all experiments.
-INITIAL_CAPITAL: Final = 100000
-
-# Investment horizon used by the
-# rolling-window analysis.
+# Rolling window length.
 WINDOW_YEARS: Final = 3
 
 # Available datasets:
 #
-# iShares MSCI World ETF (URTH)  -> 2012-
-# Vanguard Total World Stock Index Fund ETF Shares (VT)    -> 2008-
-# S&P 500 (^GSPC) -> 1990-
-# Vanguard Global Stock Index Inv EUR Acc (0P00000RQC.F) 2018-
-TICKER: Final = "0P00000RQC.F"
+# URTH
+# VT
+# ^GSPC
+# 0P00000RQC.F
+#
+TICKER: Final = "^GSPC"
 
-# Historical data download range.
+# Historical data range.
 START_DATE: Final = "1990-01-01"
 
 END_DATE: Final = "2028-01-01"
-GENERATED_ON: Final = (
-    datetime.now().strftime(
-        "%Y%m%d"
-    )
-)
+
 # File-system safe ticker symbol.
 SAFE_TICKER: Final = (
     TICKER.replace("^", "")
 )
 
-# CSV export file.
+# Rolling results CSV export file.
 CSV_OUTPUT_FILE: Final = (
         OUTPUT_FOLDER /
         f"{GENERATED_ON}_"
         f"rolling_results_"
         f"{WINDOW_YEARS}y_"
-        f"{SAFE_TICKER}"
-        f".csv"
+        f"{SAFE_TICKER}.csv"
 )
 
 # Rolling analysis CSV export file.

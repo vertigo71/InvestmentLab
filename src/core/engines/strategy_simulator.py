@@ -6,7 +6,7 @@ from core.models.strategy_result import StrategyResult
 from core.strategies.strategy import Strategy
 
 
-class BacktestEngine:
+class StrategySimulator:
 
     @staticmethod
     def run(
@@ -15,17 +15,21 @@ class BacktestEngine:
             initial_capital: float
     ) -> StrategyResult:
         """
-        Executes a backtest.
+        Simulates the execution of an
+        investment strategy over a
+        sequence of historical prices.
 
         :param prices:
-            Historical market data.
+            Historical market prices.
 
         :param strategy:
-            Investment strategy to evaluate.
+            Investment strategy to
+            simulate.
 
         :param initial_capital:
-            Available capital at the
-            beginning of the simulation.
+            Initial capital available
+            at the start of the
+            simulation.
 
         :return:
             Strategy result containing

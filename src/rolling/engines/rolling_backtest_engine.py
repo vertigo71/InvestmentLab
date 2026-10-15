@@ -2,14 +2,12 @@
 Executes strategy comparisons across
 multiple rolling windows.
 """
-
-from backtest.engines.backtest_engine import BacktestEngine
+from core.engines.strategy_simulator import StrategySimulator
 from core.strategies.strategy import Strategy
 
 from rolling.models.rolling_window import RollingWindow
 from rolling.models.rolling_window_result import RollingWindowResult
 from core.models.strategy_result import StrategyResult
-
 
 
 class RollingBacktestEngine:
@@ -50,7 +48,7 @@ class RollingBacktestEngine:
             for strategy in strategies:
                 strategy_results[
                     strategy.name()
-                ] = BacktestEngine.run(
+                ] = StrategySimulator.run(
                     prices=window.prices,
                     strategy=strategy,
                     initial_capital=initial_capital
