@@ -32,6 +32,10 @@ SAFE_TICKER: Final = (
     TICKER.replace("^", "")
 )
 
+#
+# modify strategies in strategy_factory file
+#
+
 # Rolling results CSV export file.
 CSV_OUTPUT_FILE: Final = (
         OUTPUT_FOLDER /

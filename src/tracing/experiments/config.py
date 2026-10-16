@@ -27,11 +27,6 @@ END_DATE: Final = "2019-01-01"
 # Trace period length.
 WINDOW_YEARS: Final = 3
 
-# Strategy name used in exports.
-STRATEGY_NAME: Final = (
-    "DCA_BIWEEKLY"
-)
-
 # File-system safe ticker symbol.
 SAFE_TICKER: Final = (
     TICKER.replace("^", "")
@@ -43,6 +38,6 @@ CSV_OUTPUT_FILE: Final = (
         f"{GENERATED_ON}_"
         f"tracing_"
         f"{WINDOW_YEARS}y_"
-        f"{SAFE_TICKER}_"
-        f"{STRATEGY_NAME}.csv"
+        f"{SAFE_TICKER}"
+        f".csv"
 )
