@@ -9,6 +9,7 @@ from rolling.analysis.rolling_results_analyzer import (
 from rolling.experiments.base import (
     RollingBase
 )
+from rolling.models.metric_format import MetricFormat
 
 
 def main():
@@ -26,38 +27,38 @@ def main():
         )
     )
 
-    for (
-            metric_name,
-            metric
-    ) in analysis.items():
+    # Display each analysis metric.
+    for metric in analysis:
 
         print(
-            f"\n{metric_name}"
+            f"\n{metric.name}"
         )
 
-        reverse = (
-                metric_name !=
-                "Average Rank"
-        )
-
+        # Sort strategies according
+        # to the metric preferences.
         for (
                 strategy_name,
                 value
         ) in sorted(
-            metric.items(),
+            metric.values.items(),
             key=lambda item: item[1],
-            reverse=reverse
+            reverse=metric.reverse
         ):
 
-            if isinstance(
-                    value,
-                    int
+            # Format the metric value
+            # according to the metric
+            # display configuration.
+            if (
+                    metric.format ==
+                    MetricFormat.INTEGER
             ):
-                formatted = f"{value}"
+                formatted = (
+                    f"{value}"
+                )
 
             elif (
-                    "Rank"
-                    in metric_name
+                    metric.format ==
+                    MetricFormat.DECIMAL
             ):
                 formatted = (
                     f"{value:.2f}"

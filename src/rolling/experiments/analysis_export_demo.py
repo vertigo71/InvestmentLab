@@ -19,22 +19,29 @@ from rolling.exporters.rolling_analisys_csv_exporter import RollingAnalysisCsvEx
 
 def main():
     """
-    Exports aggregated rolling analysis.
+    Builds the rolling analysis and
+    exports all generated metrics
+    to CSV format.
     """
 
     results = (
         RollingBase.build_results()
     )
 
+    # Generate the aggregate
+    # rolling analysis metrics.
     analysis = (
         RollingResultsAnalyzer.build_analysis(
             results
         )
     )
 
+    # Export all generated
+    # analysis metrics.
     RollingAnalysisCsvExporter.export(
         analysis=analysis,
-        output_file=ANALYSIS_CSV_OUTPUT_FILE
+        output_file=
+        ANALYSIS_CSV_OUTPUT_FILE
     )
 
     print(

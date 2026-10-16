@@ -7,6 +7,10 @@ import csv
 
 from pathlib import Path
 
+from rolling.models.analysis_metric import (
+    AnalysisMetric
+)
+
 
 class RollingAnalysisCsvExporter:
     """
@@ -16,14 +20,14 @@ class RollingAnalysisCsvExporter:
 
     @staticmethod
     def export(
-            analysis: dict[str, dict],
+            analysis: list[AnalysisMetric],
             output_file: str | Path
     ) -> None:
         """
         Exports rolling analysis metrics.
 
         :param analysis:
-            Aggregated analysis.
+            Analysis metrics.
 
         :param output_file:
             Output CSV file.
@@ -33,50 +37,30 @@ class RollingAnalysisCsvExporter:
             output_file
         )
 
+        # Create the output directory
+        # if it does not already exist.
         output_file.parent.mkdir(
             parents=True,
             exist_ok=True
         )
 
-        # Example:
-        #
-        # {
-        #     "Win Count": {...},
-        #     "Average CAGR": {...},
-        #     ...
-        # }
-        #
-        metric_names = list(
-            analysis.keys()
-        )
-
         # All metrics contain the same
         # strategy names.
-        # {
-        #     "Win Count": {
-        #         "ALL_IN": 17,
-        #         "DDCA": 9
-        #     },
-        #
-        #     "Average CAGR": {
-        #         "ALL_IN": 0.0897,
-        #         "DDCA": 0.0754
-        #     }
-        # }
-        first_metric = list(
-            analysis.values()
-        )[0]
+        first_metric = analysis[0]
 
         strategy_names = sorted(
-            first_metric.keys()
+            first_metric.values.keys()
         )
 
         header = [
             "Strategy"
         ]
 
+        # Add all metric names to
+        # the CSV header.
         header.extend(
-            metric_names
+            metric.name
+            for metric in analysis
         )
 
         with output_file.open(
@@ -93,17 +77,21 @@ class RollingAnalysisCsvExporter:
                 header
             )
 
+            # Export one row per
+            # strategy.
             for strategy_name in strategy_names:
 
                 row: list[object] = [
                     strategy_name
                 ]
 
-                for metric_name in metric_names:
+                # Export the value
+                # associated with the
+                # current strategy for
+                # each metric.
+                for metric in analysis:
                     row.append(
-                        analysis[
-                            metric_name
-                        ][
+                        metric.values[
                             strategy_name
                         ]
                     )

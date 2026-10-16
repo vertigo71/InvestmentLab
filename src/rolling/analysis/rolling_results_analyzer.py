@@ -4,6 +4,8 @@ Aggregates rolling window backtest results.
 
 from statistics import stdev
 
+from rolling.models.analysis_metric import AnalysisMetric
+from rolling.models.metric_format import MetricFormat
 from rolling.models.rolling_window_result import RollingWindowResult
 
 
@@ -267,39 +269,82 @@ class RollingResultsAnalyzer:
     @staticmethod
     def build_analysis(
             results: list[RollingWindowResult]
-    ) -> dict[str, dict]:
+    ) -> list[AnalysisMetric]:
         """
-        Builds the complete analysis.
+        Builds the complete rolling
+        analysis.
+
+        Each AnalysisMetric contains
+        the metric values together with
+        the display and sorting rules
+        required by reporting components.
+
+        :param results:
+            Rolling window results.
+
+        :return:
+            Analysis metrics.
         """
 
-        return {
-            "Win Count":
+        return [
+
+            AnalysisMetric(
+                name="Win Count",
+                values=
                 RollingResultsAnalyzer.get_win_count(
                     results
                 ),
+                reverse=True,
+                format=MetricFormat.INTEGER
+            ),
 
-            "Average CAGR":
+            AnalysisMetric(
+                name="Average CAGR",
+                values=
                 RollingResultsAnalyzer.get_average_cagr(
                     results
                 ),
+                reverse=True,
+                format=MetricFormat.PERCENTAGE
+            ),
 
-            "Best CAGR":
+            AnalysisMetric(
+                name="Best CAGR",
+                values=
                 RollingResultsAnalyzer.get_best_cagr(
                     results
                 ),
+                reverse=True,
+                format=MetricFormat.PERCENTAGE
+            ),
 
-            "Worst CAGR":
+            AnalysisMetric(
+                name="Worst CAGR",
+                values=
                 RollingResultsAnalyzer.get_worst_cagr(
                     results
                 ),
+                reverse=True,
+                format=MetricFormat.PERCENTAGE
+            ),
 
-            "CAGR Std Dev":
+            AnalysisMetric(
+                name="CAGR Std Dev",
+                values=
                 RollingResultsAnalyzer.get_cagr_std_dev(
                     results
                 ),
+                reverse=True,
+                format=MetricFormat.PERCENTAGE
+            ),
 
-            "Average Rank":
+            AnalysisMetric(
+                name="Average Rank",
+                values=
                 RollingResultsAnalyzer.get_average_rank(
                     results
-                )
-        }
+                ),
+                reverse=False,
+                format=MetricFormat.DECIMAL
+            )
+        ]

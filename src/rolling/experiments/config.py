@@ -11,7 +11,7 @@ from core.config import (
 )
 
 # Rolling window length.
-WINDOW_YEARS: Final = 3
+WINDOW_YEARS: Final = 5
 
 # Available datasets:
 #
