@@ -141,10 +141,7 @@ class StrategyTracer:
                     point.running_avg
             )
 
-            position_value = (
-                    portfolio.shares *
-                    point.close
-            )
+            portfolio.position_value(point.close)
 
             trace_rows.append(
                 StrategyTraceRow(

@@ -42,41 +42,11 @@ def main():
     exports it to CSV.
     """
 
-    # NOTE:
-    #
-    # Validation traces use
-    # unadjusted market prices.
-    #
-    # The objective of the tracing
-    # module is to reproduce the
-    # calculations performed in a
-    # Google Finance spreadsheet.
-    #
-    # Google Finance returns raw
-    # market prices that do not
-    # include the effects of
-    # dividend reinvestment.
-    #
-    # Therefore:
-    #
-    # Spreadsheet
-    # == Yahoo Close
-    #
-    # Core application
-    # == Yahoo Adjusted Close
-    #
-    # The purpose of tracing is
-    # validation only. Once the
-    # simulator has been validated,
-    # the rolling analysis module
-    # remains the production path
-    # and continues to use adjusted
-    # prices including dividends.
     prices = YahooLoader.load(
         ticker=TICKER,
         start_date=START_DATE,
         end_date=END_DATE,
-        auto_adjust=True
+        auto_adjust=True  # dividends are reinverted in the fund
     )
 
     strategy = DrawdownDCA(

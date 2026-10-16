@@ -77,7 +77,7 @@ class StrategySimulator:
             prices[-1].close
         )
 
-        final_value = portfolio.value(
+        final_value = portfolio.total_value(
             final_price
         )
 

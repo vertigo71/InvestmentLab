@@ -21,7 +21,10 @@ class Portfolio:
     cash_remaining: float
     shares: float = 0.0
 
-    def buy(self, amount: float, price: float) -> None:
+    def buy(self,
+            amount: float,
+            price: float
+            ) -> None:
         """
         Purchases shares.
 
@@ -38,10 +41,25 @@ class Portfolio:
         self.shares += amount / price
         self.cash_remaining -= amount
 
-    def value(self, current_price: float) -> float:
+    def position_value(self,
+                       current_price: float
+                       ) -> float:
         """
-        Returns the invested asset value
-        at the specified market price.
+        Returns the market value of the
+        accumulated shares only.
         """
 
         return self.shares * current_price
+
+    def total_value(self,
+                    current_price: float
+                    ) -> float:
+        """
+        Returns the total portfolio value:
+        invested position plus uninvested cash.
+        """
+
+        return (
+                self.position_value(current_price) +
+                self.cash_remaining
+        )

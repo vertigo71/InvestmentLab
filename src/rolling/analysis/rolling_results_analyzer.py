@@ -334,7 +334,7 @@ class RollingResultsAnalyzer:
                 RollingResultsAnalyzer.get_cagr_std_dev(
                     results
                 ),
-                reverse=True,
+                reverse=False,
                 format=MetricFormat.PERCENTAGE
             ),
 

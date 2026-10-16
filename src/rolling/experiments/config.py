@@ -23,9 +23,10 @@ WINDOW_YEARS: Final = 5
 TICKER: Final = "^GSPC"
 
 # Historical data range.
+# Only full years
 START_DATE: Final = "1990-01-01"
 
-END_DATE: Final = "2028-01-01"
+END_DATE: Final = "2026-01-01"
 
 # File-system safe ticker symbol.
 SAFE_TICKER: Final = (
