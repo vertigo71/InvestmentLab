@@ -48,7 +48,7 @@ class StrategyFactory:
                     (0.4, 5),
                 ],
                 frequency=ContributionFrequency.BIWEEKLY,
-                reference_price=ReferencePrice.RUNNING_MAX
+                reference_price=ReferencePrice.RUNNING_MAX,
             ),
 
             DrawdownDCA(
