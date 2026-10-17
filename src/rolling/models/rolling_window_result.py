@@ -28,6 +28,10 @@ class RollingWindowResult:
     # all strategies within the window.
     initial_capital: float
 
+    # {
+    #     "ALL_IN": StrategyResult [value, shares, cash, ...],
+    #     "DCA_BIWEEKLY": StrategyResult [value, shares, cash, ...]
+    # }
     # Results produced by each strategy.
     strategy_results: dict[str, StrategyResult]
 

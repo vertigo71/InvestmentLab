@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from core.models.price_point import PricePoint
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True) # immutable objects
 class SimulationStep:
     """
     Stores the outcome of one simulation
@@ -49,4 +49,16 @@ class SimulationStep:
         return (
                 self.accumulated_shares *
                 self.point.close
+        )
+
+    @property
+    def total_value(self) -> float: # property -> getter
+        """
+        Invested position plus uninvested
+        cash at the period close.
+        """
+
+        return (
+                self.position_value +
+                self.cash_remaining
         )

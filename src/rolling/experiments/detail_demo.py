@@ -26,7 +26,7 @@ def main():
         print(
             f"\n"
             f"{result.start_year}-"
-            f"{result.end_year-1}"
+            f"{result.end_year - 1}"
         )
 
         for context in (
@@ -57,9 +57,11 @@ def main():
                 f"{strategy_result.value:,.2f} "
                 f"("
                 f"{strategy_result.cagr(
-                    result.initial_capital,
+                    result.initial_capital
                 ):.2%}"
                 f")"
+                f" MaxDD: "
+                f"{strategy_result.max_drawdown:.2%}"
                 f"{cash_text}"
             )
 

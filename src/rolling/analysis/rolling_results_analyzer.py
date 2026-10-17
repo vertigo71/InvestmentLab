@@ -4,9 +4,11 @@ Aggregates rolling window backtest results.
 
 from statistics import stdev
 
+from core.models.strategy_result import StrategyResult
 from rolling.models.analysis_metric import AnalysisMetric
 from rolling.models.metric_format import MetricFormat
 from rolling.models.rolling_window_result import RollingWindowResult
+from collections.abc import Callable
 
 
 class RollingResultsAnalyzer:
@@ -58,21 +60,30 @@ class RollingResultsAnalyzer:
         return wins
 
     @staticmethod
-    def _get_strategy_cagrs(
-            results: list[RollingWindowResult]
+    def _group_by_strategy(
+            results: list[RollingWindowResult],
+            metric: Callable[
+                [RollingWindowResult, StrategyResult],
+                float
+            ]
     ) -> dict[str, list[float]]:
         """
-        Returns all CAGR values grouped
-        by strategy.
+        Extracts a metric from every window
+        and groups the values by strategy.
 
         :param results:
             Rolling window results.
 
+        :param metric:
+            Function returning the value to
+            extract from a strategy result
+            within its window.
+
         :return:
-            CAGR values grouped by strategy.
+            Metric values grouped by strategy.
         """
 
-        cagrs: dict[str, list[float]] = {}
+        grouped: dict[str, list[float]] = {}
 
         for result in results:
 
@@ -80,17 +91,50 @@ class RollingResultsAnalyzer:
                     strategy_name,
                     strategy_result
             ) in result.strategy_results.items():
-
-                if strategy_name not in cagrs:
-                    cagrs[strategy_name] = []
-
-                cagrs[strategy_name].append(
-                    strategy_result.cagr(
-                        result.initial_capital,
-                    )
+                grouped.setdefault(  # add if it didn't exist
+                    strategy_name,
+                    []
+                ).append(
+                    metric(result, strategy_result)
                 )
 
-        return cagrs
+        return grouped
+
+    # {
+    #     "ALL_IN": [0.1456, 0.1123, ...],
+    #     "DCA_BIWEEKLY": [0.0855, 0.0790, ...],
+    # }
+    @staticmethod
+    def _get_strategy_cagrs(
+            results: list[RollingWindowResult]
+    ) -> dict[str, list[float]]:
+        """
+        Returns all CAGR values grouped
+        by strategy.
+        """
+
+        return RollingResultsAnalyzer._group_by_strategy(
+            results,
+            lambda result, strategy_result:
+            strategy_result.cagr(
+                result.initial_capital
+            )
+        )
+
+    @staticmethod
+    def _get_strategy_max_drawdowns(
+            results: list[RollingWindowResult]
+    ) -> dict[str, list[float]]:
+        """
+        Returns all maximum drawdown values
+        grouped by strategy.
+        """
+
+        return RollingResultsAnalyzer._group_by_strategy(
+            results,
+            lambda _, strategy_result:
+            strategy_result.max_drawdown
+        )
 
     @staticmethod
     def get_average_cagr(
@@ -266,6 +310,52 @@ class RollingResultsAnalyzer:
         }
 
     @staticmethod
+    def get_average_max_drawdown(
+            results: list[RollingWindowResult]
+    ) -> dict[str, float]:
+        """
+        Returns the average maximum drawdown
+        obtained by each strategy.
+        """
+
+        drawdowns = (
+            RollingResultsAnalyzer._get_strategy_max_drawdowns(
+                results
+            )
+        )
+
+        return {
+            strategy_name:
+                sum(values) / len(values)
+
+            for strategy_name, values
+            in drawdowns.items()
+        }
+
+    @staticmethod
+    def get_worst_max_drawdown(
+            results: list[RollingWindowResult]
+    ) -> dict[str, float]:
+        """
+        Returns the largest maximum drawdown
+        suffered by each strategy in any
+        window.
+        """
+
+        drawdowns = (
+            RollingResultsAnalyzer._get_strategy_max_drawdowns(
+                results
+            )
+        )
+
+        return {
+            strategy_name: max(values)
+
+            for strategy_name, values
+            in drawdowns.items()
+        }
+
+    @staticmethod
     def build_analysis(
             results: list[RollingWindowResult]
     ) -> list[AnalysisMetric]:
@@ -346,6 +436,26 @@ class RollingResultsAnalyzer:
                 name="CAGR Std Dev",
                 values=
                 RollingResultsAnalyzer.get_cagr_std_dev(
+                    results
+                ),
+                reverse=False,
+                format=MetricFormat.PERCENTAGE
+            ),
+
+            AnalysisMetric(
+                name="Average Max Drawdown",
+                values=
+                RollingResultsAnalyzer.get_average_max_drawdown(
+                    results
+                ),
+                reverse=False,
+                format=MetricFormat.PERCENTAGE
+            ),
+
+            AnalysisMetric(
+                name="Worst Max Drawdown",
+                values=
+                RollingResultsAnalyzer.get_worst_max_drawdown(
                     results
                 ),
                 reverse=False,

@@ -29,6 +29,12 @@ class StrategyResult:
     end_date:
         Date of the last price point
         (final valuation).
+
+    max_drawdown:
+        Largest peak-to-trough decline of
+        total_value during the simulation,
+        as a positive fraction (0.25 = -25%).
+
     """
 
     value: float
@@ -36,6 +42,7 @@ class StrategyResult:
     cash: float
     start_date: date
     end_date: date
+    max_drawdown: float
 
     @property
     def total_value(self) -> float:

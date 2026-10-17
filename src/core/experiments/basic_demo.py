@@ -6,8 +6,6 @@ a simple strategy to validate that
 the application is working correctly.
 """
 
-from typing import Final
-
 from core.config import INITIAL_CAPITAL
 from core.engines.strategy_simulator import StrategySimulator
 from core.providers.yahoo_loader import YahooLoader

@@ -5,11 +5,6 @@ tracing experiments.
 
 from typing import Final
 
-from core.config import (
-    GENERATED_ON,
-    OUTPUT_FOLDER
-)
-
 # Available datasets:
 #
 # URTH
@@ -31,4 +26,3 @@ WINDOW_YEARS: Final = 3
 SAFE_TICKER: Final = (
     TICKER.replace("^", "")
 )
-

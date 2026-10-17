@@ -109,7 +109,15 @@ class StrategySimulator:
     ) -> StrategyResult:
         """
         Simulates a strategy and returns
-        only the final portfolio state.
+        the final portfolio state.
+
+        The maximum drawdown is measured on
+        the total portfolio value (position
+        plus cash). Moving cash into shares
+        does not change the total, so only
+        market movements affect it, which
+        makes strategies with uninvested
+        cash comparable with lump sum.
 
         :param prices:
             Historical market prices.
@@ -128,12 +136,30 @@ class StrategySimulator:
 
         last_step: SimulationStep | None = None
 
-        for last_step in StrategySimulator.steps(
+        # Highest total value reached so far.
+        # The portfolio starts fully in cash.
+        peak_value = initial_capital
+
+        # Largest decline from a previous
+        # peak, as a positive fraction.
+        max_drawdown = 0.0
+
+        for step in StrategySimulator.steps(
                 prices=prices,
                 strategy=strategy,
                 initial_capital=initial_capital
         ):
-            pass
+            peak_value = max(
+                peak_value,
+                step.total_value
+            )
+
+            max_drawdown = max(
+                max_drawdown,
+                1.0 - step.total_value / peak_value
+            )
+
+            last_step = step
 
         # steps() guarantees at least
         # two periods.
@@ -144,5 +170,6 @@ class StrategySimulator:
             shares=last_step.accumulated_shares,
             cash=last_step.cash_remaining,
             start_date=prices[0].date,
-            end_date=last_step.point.date
+            end_date=last_step.point.date,
+            max_drawdown=max_drawdown
         )

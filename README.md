@@ -32,10 +32,10 @@ statistics such as win count, average CAGR and CAGR dispersion.
 
 ## Strategies
 
-| Strategy | Name pattern | Behaviour |
-|---|---|---|
-| `AllIn` | `ALL_IN` | Invests all capital in the first period. |
-| `DCA` | `DCA_<FREQUENCY>` | Invests a fixed amount at a fixed frequency. |
+| Strategy      | Name pattern                                | Behaviour                                                                                                            |
+|---------------|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `AllIn`       | `ALL_IN`                                    | Invests all capital in the first period.                                                                             |
+| `DCA`         | `DCA_<FREQUENCY>`                           | Invests a fixed amount at a fixed frequency.                                                                         |
 | `DrawdownDCA` | `DDCA_<REF>_<FREQUENCY>_[BASE<x>_]<levels>` | Like DCA, but scales each contribution by a multiplier that depends on how far the price is below a reference price. |
 
 ### Contribution frequency
@@ -43,11 +43,11 @@ statistics such as win count, average CAGR and CAGR dispersion.
 The project works with **weekly periods**. `ContributionFrequency`
 defines how many weeks pass between contributions:
 
-| Frequency | Weeks |
-|---|---|
-| `WEEKLY` | 1 |
-| `BIWEEKLY` | 2 |
-| `MONTHLY` | 4 (approximation) |
+| Frequency  | Weeks             |
+|------------|-------------------|
+| `WEEKLY`   | 1                 |
+| `BIWEEKLY` | 2                 |
+| `MONTHLY`  | 4 (approximation) |
 
 ### Drawdown DCA
 
@@ -57,9 +57,9 @@ The drawdown is measured against a reference price:
 drawdown = 1 - price / reference_price
 ```
 
-| Reference | Meaning |
-|---|---|
-| `RUNNING_MAX` | Highest close since the start of the window. Drawdown is never negative. |
+| Reference     | Meaning                                                                                                |
+|---------------|--------------------------------------------------------------------------------------------------------|
+| `RUNNING_MAX` | Highest close since the start of the window. Drawdown is never negative.                               |
 | `RUNNING_AVG` | Average close since the start of the window. Drawdown is negative when the price is above the average. |
 
 Levels are `(threshold, multiplier)` pairs. The multiplier of the
@@ -121,12 +121,12 @@ can never exceed the remaining cash.
 
 `StrategyResult` keeps the invested position and the cash separately:
 
-| Field | Meaning |
-|---|---|
-| `value` | Market value of the accumulated shares. |
-| `cash` | Uninvested cash. |
-| `total_value` | `value + cash`, used for all performance metrics. |
-| `years` | Elapsed time between the first and last price dates. |
+| Field         | Meaning                                              |
+|---------------|------------------------------------------------------|
+| `value`       | Market value of the accumulated shares.              |
+| `cash`        | Uninvested cash.                                     |
+| `total_value` | `value + cash`, used for all performance metrics.    |
+| `years`       | Elapsed time between the first and last price dates. |
 
 CAGR is computed from the actual elapsed time:
 
@@ -217,22 +217,22 @@ python -m tracing.experiments.trace_demo
 
 ### Configuration
 
-| What | Where |
-|---|---|
-| Initial capital, output folder | `core/config.py` |
-| Rolling ticker, date range, window length | `rolling/experiments/config.py` |
-| Strategies to compare | `rolling/factories/strategy_factory.py` |
-| Trace ticker and date range | `tracing/experiments/config.py` |
-| Traced strategy | `tracing/experiments/trace_demo.py` |
+| What                                      | Where                                   |
+|-------------------------------------------|-----------------------------------------|
+| Initial capital, output folder            | `core/config.py`                        |
+| Rolling ticker, date range, window length | `rolling/experiments/config.py`         |
+| Strategies to compare                     | `rolling/factories/strategy_factory.py` |
+| Trace ticker and date range               | `tracing/experiments/config.py`         |
+| Traced strategy                           | `tracing/experiments/trace_demo.py`     |
 
 ### Tickers
 
-| Ticker | Description |
-|---|---|
+| Ticker     | Description                                                                                   |
+|------------|-----------------------------------------------------------------------------------------------|
 | `^SP500TR` | S&P 500 Total Return (dividends reinvested). Default for rolling analysis; history from 1990. |
-| `^GSPC` | S&P 500 price index. **Excludes dividends.** |
-| `URTH` | iShares MSCI World ETF (from 2012). |
-| `VT` | Vanguard Total World Stock ETF (from 2008). |
+| `^GSPC`    | S&P 500 price index. **Excludes dividends.**                                                  |
+| `URTH`     | iShares MSCI World ETF (from 2012).                                                           |
+| `VT`       | Vanguard Total World Stock ETF (from 2008).                                                   |
 
 ### Outputs
 
@@ -265,14 +265,14 @@ DDCA_AVG_MONTHLY_(10%;2)_(20%;3)_(30%;4)_(40%;5): 152,869.15 (8.89%)
 
 ### Aggregate metrics
 
-| Metric | Better when |
-|---|---|
-| Win Count | Higher |
-| Average CAGR | Higher |
-| Best CAGR | Higher |
-| Worst CAGR | Higher |
-| CAGR Std Dev | Lower |
-| Average Rank | Lower |
+| Metric       | Better when |
+|--------------|-------------|
+| Win Count    | Higher      |
+| Average CAGR | Higher      |
+| Best CAGR    | Higher      |
+| Worst CAGR   | Higher      |
+| CAGR Std Dev | Lower       |
+| Average Rank | Lower       |
 
 The analysis requires at least two rolling windows.
 
@@ -297,7 +297,7 @@ by tiny floating-point amounts, which breaks an exact comparison.
 ## Assumptions and limitations
 
 - **Cash earns 0%.** Uninvested cash is counted at face value, which
-  slightly favours lump sum over strategies that keep cash waiting.
+  slightly favors lump sum over strategies that keep cash waiting.
 - **Decision and purchase use the same close.** A strategy sees a
   week's closing price and buys at that same price.
 - **Gross dividends, in USD.** `^SP500TR` ignores dividend withholding

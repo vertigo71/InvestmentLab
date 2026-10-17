@@ -17,12 +17,13 @@ from core.config import (
 # ^GSPC 1990 -
 # 0P00000RQC.F
 # "^SP500TR" 1990 -
+# Nikkei 225 (^N225) 1990 - no dividends
 #
-TICKER: Final = "^SP500TR"
+TICKER: Final = "^N225"
 
 # Historical data range.
-START_DATE: Final = "1990-01-01"
-END_DATE: Final = "2026-01-01"
+START_DATE: Final = "1987-01-01"
+END_DATE: Final = "1997-01-01"
 
 # Rolling window length.
 WINDOW_YEARS: Final = 3
