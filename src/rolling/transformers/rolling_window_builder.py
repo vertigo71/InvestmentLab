@@ -16,6 +16,7 @@ those windows from a complete historical dataset.
 """
 
 from core.models.price_point import PricePoint
+from core.transformers.price_point_builder import PricePointBuilder
 from rolling.models.rolling_window import RollingWindow
 
 
@@ -34,6 +35,11 @@ class RollingWindowBuilder:
         """
         Creates a single rolling window.
 
+        Running statistics and period indexes
+        are recalculated from the first price
+        of the window, as if the simulation
+        started there.
+
         :param prices:
             Complete historical dataset.
 
@@ -51,54 +57,16 @@ class RollingWindowBuilder:
 
         end_year = start_year + window_years
 
-        # Extract only the price points
-        # belonging to this rolling window.
-        window_prices = [
-            point
+        window_prices = PricePointBuilder.build(
+            (point.date, point.close)
             for point in prices
             if start_year <= point.date.year < end_year
-        ]
-
-        # Highest closing price observed
-        # within the current rolling window.
-        running_max: float = 0.0
-
-        # Sum of closing prices observed
-        # within the current rolling window.
-        running_sum: float = 0.0
-
-        # Price points rebuilt for this window
-        # with recalculated running values
-        # and period indexes.
-        recalculated_prices: list[PricePoint] = []
-
-        for period_index, point in enumerate(window_prices):
-            running_max = max(
-                running_max,
-                point.close
-            )
-
-            running_sum += point.close
-
-            running_avg = (
-                    running_sum /
-                    (period_index + 1)
-            )
-
-            recalculated_prices.append(
-                PricePoint(
-                    period_index=period_index,
-                    date=point.date,
-                    close=point.close,
-                    running_max=running_max,
-                    running_avg=running_avg
-                )
-            )
+        )
 
         return RollingWindow(
             start_year=start_year,
             end_year=end_year,
-            prices=recalculated_prices
+            prices=window_prices
         )
 
     @staticmethod

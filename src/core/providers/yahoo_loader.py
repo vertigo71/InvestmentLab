@@ -5,6 +5,7 @@ Yahoo Finance historical data loader.
 import yfinance as yf  # type: ignore
 
 from core.models.price_point import PricePoint
+from core.transformers.price_point_builder import PricePointBuilder
 
 
 # noinspection unresolved-references
@@ -122,38 +123,10 @@ class YahooLoader:
                 f"{missing_dates}"
             )
 
-        # Generated PricePoint objects.
-        prices: list[PricePoint] = []
-
-        # Highest closing price observed so far.
-        running_max: float = 0.0
-
-        # Sum of closing prices observed so far.
-        running_sum: float = 0.0
-
-        for period_index, row in enumerate(df.itertuples()):
-            close: float = float(row.Close)
-
-            running_max = max(
-                running_max,
-                close
+        return PricePointBuilder.build(
+            (
+                row.Index.date(),
+                float(row.Close)
             )
-
-            running_sum += close
-
-            running_avg = (
-                    running_sum /
-                    (period_index + 1)
-            )
-
-            prices.append(
-                PricePoint(
-                    period_index=period_index,
-                    date=row.Index.date(),
-                    close=close,
-                    running_max=running_max,
-                    running_avg=running_avg
-                )
-            )
-
-        return prices
+            for row in df.itertuples()
+        )
