@@ -11,45 +11,42 @@ from core.models.price_point import PricePoint
 @dataclass(frozen=True)
 class SimulationStep:
     """
-    Portfolio state after processing
-    one price point.
+    Stores the outcome of one simulation
+    period, after the purchase has been
+    executed.
 
     :param point:
         Market data for the period.
 
     :param contribution:
-        Amount actually invested
-        during the period.
-
-    :param accumulated_contribution:
-        Total capital invested up to
-        and including this period.
-
-    :param shares_bought:
-        Shares purchased during
+        Amount actually invested during
         the period.
 
-    :param shares:
-        Total accumulated shares.
+    :param shares_bought:
+        Shares purchased during the period.
 
-    :param position_value:
-        Market value of the accumulated
-        shares at the period close.
+    :param accumulated_shares:
+        Total shares owned after the
+        purchase.
 
     :param cash_remaining:
-        Uninvested cash after
-        the purchase.
-
-    :param total_value:
-        Position value plus
-        remaining cash.
+        Uninvested cash after the purchase.
     """
 
     point: PricePoint
     contribution: float
-    accumulated_contribution: float
     shares_bought: float
-    shares: float
-    position_value: float
+    accumulated_shares: float
     cash_remaining: float
-    total_value: float
+
+    @property
+    def position_value(self) -> float:
+        """
+        Market value of the accumulated
+        shares at the period close.
+        """
+
+        return (
+                self.accumulated_shares *
+                self.point.close
+        )

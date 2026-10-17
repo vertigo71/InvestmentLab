@@ -3,9 +3,7 @@ Generates detailed traces for
 strategy simulations.
 """
 
-from math import floor
-
-from core.models.portfolio import Portfolio
+from core.engines.strategy_simulator import StrategySimulator
 from core.models.price_point import PricePoint
 from core.strategies.strategy import Strategy
 
@@ -21,6 +19,11 @@ class StrategyTracer:
     """
     Generates a detailed execution trace
     for a strategy simulation.
+
+    The simulation itself is delegated to
+    StrategySimulator, so the trace always
+    reflects the exact same logic used by
+    the rolling analysis.
     """
 
     @staticmethod
@@ -60,75 +63,20 @@ class StrategyTracer:
             Generated strategy trace.
         """
 
-        portfolio = Portfolio(
-            initial_capital
-        )
-
-        trace_rows: list[
-            StrategyTraceRow
-        ] = []
-
-        # Reserve one period when
-        # calculating the base
-        # contribution amount.
-        investment_periods = (
-                len(prices) - 1
-        )
-
-        # Base contribution proposed
-        # to the strategy.
-        contribution_amount = floor(
-            initial_capital /
-            investment_periods
-        )
+        trace_rows: list[StrategyTraceRow] = []
 
         # Total capital invested so far.
         accumulated_contribution = 0.0
 
-        for point in prices:
-            contribution = (
-                strategy.contribution(
-                    weekly_contribution=
-                    contribution_amount,
-                    period_index=
-                    point.period_index,
-                    price=point.close,
-                    running_max=
-                    point.running_max,
-                    running_avg=
-                    point.running_avg,
-                    cash_remaining=
-                    portfolio.cash_remaining
-                )
-            )
-
-            # Capture the share count
-            # before the purchase in
-            # order to calculate the
-            # number of shares acquired
-            # during this period.
-            shares_before = (
-                portfolio.shares
-            )
-
-            portfolio.buy(
-                contribution,
-                point.close
-            )
-
-            shares_bought = (
-                    portfolio.shares -
-                    shares_before
-            )
-
-            # Market value of the
-            # accumulated shares.
-            position_value = portfolio.position_value(
-                point.close
-            )
+        for step in StrategySimulator.steps(
+                prices=prices,
+                strategy=strategy,
+                initial_capital=initial_capital
+        ):
+            point = step.point
 
             accumulated_contribution += (
-                contribution
+                step.contribution
             )
 
             # Drawdown relative to the
@@ -147,48 +95,21 @@ class StrategyTracer:
                     point.running_avg
             )
 
-            portfolio.position_value(point.close)
-
             trace_rows.append(
                 StrategyTraceRow(
-                    period_index=
-                    point.period_index,
-
-                    date=
-                    point.date,
-
-                    close=
-                    point.close,
-
-                    running_max=
-                    point.running_max,
-
-                    running_avg=
-                    point.running_avg,
-
-                    drawdown_max=
-                    drawdown_max,
-
-                    drawdown_avg=
-                    drawdown_avg,
-
-                    contribution=
-                    contribution,
-
-                    accumulated_contribution=
-                    accumulated_contribution,
-
-                    shares_bought=
-                    shares_bought,
-
-                    accumulated_shares=
-                    portfolio.shares,
-
-                    position_value=
-                    position_value,
-
-                    cash_remaining=
-                    portfolio.cash_remaining
+                    period_index=point.period_index,
+                    date=point.date,
+                    close=point.close,
+                    running_max=point.running_max,
+                    running_avg=point.running_avg,
+                    drawdown_max=drawdown_max,
+                    drawdown_avg=drawdown_avg,
+                    contribution=step.contribution,
+                    accumulated_contribution=accumulated_contribution,
+                    shares_bought=step.shares_bought,
+                    accumulated_shares=step.accumulated_shares,
+                    position_value=step.position_value,
+                    cash_remaining=step.cash_remaining
                 )
             )
 
