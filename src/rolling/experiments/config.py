@@ -17,10 +17,11 @@ WINDOW_YEARS: Final = 5
 #
 # URTH
 # VT
-# ^GSPC
+# ^GSPC 1990 -
 # 0P00000RQC.F
+# "^SP500TR" 1990 -
 #
-TICKER: Final = "^GSPC"
+TICKER: Final = "^SP500TR"
 
 # Historical data range.
 # Only full years
