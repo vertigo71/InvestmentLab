@@ -17,7 +17,8 @@ class DrawdownDCA(Strategy):
             self,
             levels: list[tuple[float, float]],
             frequency: ContributionFrequency,
-            reference_price: ReferencePrice
+            reference_price: ReferencePrice,
+            base_multiplier: float = 1.0
     ):
         """
         Creates a drawdown-based DCA strategy.
@@ -54,6 +55,17 @@ class DrawdownDCA(Strategy):
                 RUNNING_MAX
 
                 RUNNING_AVG
+
+         :param base_multiplier:
+            Multiplier applied when the
+            drawdown is below the first
+            threshold, i.e. when no level
+            is reached.
+
+            With RUNNING_AVG this includes
+            periods where the price is
+            above the average.
+
         """
 
         # Thresholds must be strictly increasing.
@@ -93,10 +105,18 @@ class DrawdownDCA(Strategy):
                     f"Multiplier must be positive, "
                     f"got {multiplier}"
                 )
-            
+
+        if base_multiplier <= 0:
+            raise ValueError(
+                f"Base multiplier must be "
+                f"positive, got "
+                f"{base_multiplier}"
+            )
+
         self.levels = levels
         self.frequency = frequency
         self.reference_price = reference_price
+        self.base_multiplier = base_multiplier
 
     def contribution(
             self,
@@ -162,7 +182,7 @@ class DrawdownDCA(Strategy):
                 price / reference_price
         )
 
-        multiplier: float = 1.0
+        multiplier: float = self.base_multiplier
 
         # Determine the contribution
         # multiplier.
@@ -205,9 +225,19 @@ class DrawdownDCA(Strategy):
             else "AVG"
         )
 
+        # Only shown when it differs from
+        # the default, so existing strategy
+        # names remain unchanged.
+        base = (
+            f"BASE{self.base_multiplier:g}_"
+            if self.base_multiplier != 1.0
+            else ""
+        )
+
         return (
             f"DDCA_"
             f"{reference}_"
             f"{self.frequency.name}_"
+            f"{base}"
             f"{levels}"
         )
