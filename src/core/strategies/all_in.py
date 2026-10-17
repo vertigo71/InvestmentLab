@@ -13,14 +13,14 @@ class AllIn(Strategy):
     def contribution(
             self,
             point: PricePoint,
-            weekly_contribution: float,
+            contribution_amount: float,
             cash_remaining: float
     ) -> float:
         """
         Invests all available capital
         during the first period.
 
-        The proposed weekly contribution
+        The proposed contribution amount
         is ignored.
         """
 

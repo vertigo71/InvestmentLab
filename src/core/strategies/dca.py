@@ -1,10 +1,10 @@
-from core.models.contribution_frequency import ContributionFrequency
-from core.models.price_point import PricePoint
-from core.strategies.strategy import Strategy
-
 """
 Traditional Dollar Cost Averaging strategy.
 """
+
+from core.models.contribution_frequency import ContributionFrequency
+from core.models.price_point import PricePoint
+from core.strategies.strategy import Strategy
 
 
 class DCA(Strategy):
@@ -28,40 +28,31 @@ class DCA(Strategy):
                 MONTHLY
         """
 
-        self.frequency = frequency
+        self._frequency = frequency
+
+    @property
+    def frequency(self) -> ContributionFrequency:
+        """
+        Contribution frequency.
+        """
+
+        return self._frequency
 
     def contribution(
             self,
             point: PricePoint,
-            weekly_contribution: float,
+            contribution_amount: float,
             cash_remaining: float
     ) -> float:
         """
-        Invests a fixed amount at the
-        configured frequency.
+        Invests the proposed amount on
+        every contribution period.
         """
-
-        # Skip periods that are not
-        # contribution periods.
-        if (
-                point.period_index %
-                self.frequency.value
-                != 0
-        ):
-            return 0.0
-
-        # Convert the weekly contribution
-        # into a contribution matching the
-        # configured frequency.
-        amount = (
-                weekly_contribution *
-                self.frequency.value
-        )
 
         # Never invest more cash
         # than available.
         return min(
-            amount,
+            contribution_amount,
             cash_remaining
         )
 

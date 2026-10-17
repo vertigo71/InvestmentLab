@@ -8,7 +8,6 @@ falls below a reference price.
 from core.models.contribution_frequency import ContributionFrequency
 from core.models.price_point import PricePoint
 from core.models.reference_price import ReferencePrice
-
 from core.strategies.strategy import Strategy
 
 
@@ -28,12 +27,19 @@ class DrawdownDCA(Strategy):
             Drawdown thresholds and
             associated multipliers.
 
+            Thresholds must be strictly
+            increasing and lower than 1.
+            Negative thresholds are allowed:
+            with RUNNING_AVG the drawdown is
+            negative when the price is above
+            the average.
+
             Example:
 
                 [
-                    (0.01, 2),
-                    (0.02, 4),
-                    (0.03, 8)
+                    (0.10, 2),
+                    (0.20, 3),
+                    (0.30, 4)
                 ]
 
         :param frequency:
@@ -57,7 +63,7 @@ class DrawdownDCA(Strategy):
 
                 RUNNING_AVG
 
-         :param base_multiplier:
+        :param base_multiplier:
             Multiplier applied when the
             drawdown is below the first
             threshold, i.e. when no level
@@ -67,6 +73,9 @@ class DrawdownDCA(Strategy):
             periods where the price is
             above the average.
 
+        :raises ValueError:
+            If the levels or the base
+            multiplier are not valid.
         """
 
         # Thresholds must be strictly increasing.
@@ -115,31 +124,29 @@ class DrawdownDCA(Strategy):
             )
 
         self.levels = levels
-        self.frequency = frequency
+        self._frequency = frequency
         self.reference_price = reference_price
         self.base_multiplier = base_multiplier
+
+    @property
+    def frequency(self) -> ContributionFrequency:
+        """
+        Contribution frequency.
+        """
+
+        return self._frequency
 
     def contribution(
             self,
             point: PricePoint,
-            weekly_contribution: float,
+            contribution_amount: float,
             cash_remaining: float
     ) -> float:
         """
-        Invests at the configured frequency,
-        scaling the contribution by the
+        Scales the proposed amount by the
         multiplier of the deepest drawdown
         level reached.
         """
-
-        # Skip periods that are not
-        # contribution periods.
-        if (
-                point.period_index %
-                self.frequency.value
-                != 0
-        ):
-            return 0.0
 
         # Select the reference price
         # used to calculate drawdown.
@@ -166,19 +173,10 @@ class DrawdownDCA(Strategy):
             if drawdown >= threshold:
                 multiplier = value
 
-        # Convert the weekly contribution
-        # into a contribution matching the
-        # configured frequency.
-        amount = (
-                weekly_contribution *
-                self.frequency.value *
-                multiplier
-        )
-
         # Never invest more cash
         # than available.
         return min(
-            amount,
+            contribution_amount * multiplier,
             cash_remaining
         )
 

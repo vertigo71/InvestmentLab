@@ -56,9 +56,7 @@ class StrategySimulator:
             initial_capital
         )
 
-        # Number of contribution periods
-        # used to calculate the base
-        # contribution amount.
+        # Base contribution per data period.
         #
         # Subtract one period to avoid
         # allocating more capital than
@@ -67,19 +65,48 @@ class StrategySimulator:
                 len(prices) - 1
         )
 
-        # Base contribution amount
-        # proposed to all strategies.
-        weekly_contribution = floor(
+        period_contribution = floor(
             initial_capital /
             investment_periods
         )
 
-        for point in prices:
-            requested = strategy.contribution(
-                point=point,
-                weekly_contribution=weekly_contribution,
-                cash_remaining=portfolio.cash_remaining
+        # Data rows between two contributions.
+        # Fails here if the strategy frequency
+        # is not possible with this data, e.g.
+        # weekly contributions on monthly data.
+        frequency = strategy.frequency
+
+        contribution_periods = (
+            frequency.periods(
+                series.frequency
             )
+            if frequency is not None
+            else 1
+        )
+
+        # Amount proposed on each
+        # contribution period.
+        contribution_amount = (
+                period_contribution *
+                contribution_periods
+        )
+
+        for point in prices:
+
+            requested = 0.0
+
+            # Only contribution periods are
+            # passed to the strategy.
+            if (
+                    point.period_index %
+                    contribution_periods
+                    == 0
+            ):
+                requested = strategy.contribution(
+                    point=point,
+                    contribution_amount=contribution_amount,
+                    cash_remaining=portfolio.cash_remaining
+                )
 
             shares_before = portfolio.shares
             cash_before = portfolio.cash_remaining
