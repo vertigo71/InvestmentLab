@@ -74,11 +74,8 @@ class StrategySimulator:
 
         for point in prices:
             requested = strategy.contribution(
+                point=point,
                 weekly_contribution=weekly_contribution,
-                period_index=point.period_index,
-                price=point.close,
-                running_max=point.running_max,
-                running_avg=point.running_avg,
                 cash_remaining=portfolio.cash_remaining
             )
 

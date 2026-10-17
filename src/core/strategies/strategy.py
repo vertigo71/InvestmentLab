@@ -1,19 +1,7 @@
-"""
-Defines the base contract for all investment strategies.
-
-Every strategy decides how much capital should be
-invested at a given point in time.
-
-Examples:
-
-    - All In
-    - Fixed DCA
-    - Drawdown DCA
-    - Moving Average DCA
-"""
-
 from abc import ABC
 from abc import abstractmethod
+
+from core.models.price_point import PricePoint
 
 
 class Strategy(ABC):
@@ -24,16 +12,19 @@ class Strategy(ABC):
     @abstractmethod
     def contribution(
             self,
+            point: PricePoint,
             weekly_contribution: float,
-            period_index: int,
-            price: float,
-            running_max: float,
-            running_avg: float,
             cash_remaining: float
     ) -> float:
         """
         Calculates how much money should
         be invested.
+
+        :param point:
+            Market data for the current
+            period: period index, date,
+            close price and running
+            statistics.
 
         :param weekly_contribution:
             Base weekly contribution amount
@@ -43,21 +34,6 @@ class Strategy(ABC):
             accumulate multiple periods based
             on their contribution frequency, or
             ignore it entirely.
-
-        :param period_index:
-            Sequential index of the current period.
-
-        :param price:
-            Current asset price.
-
-        :param running_max:
-            Maximum price observed up to
-            this point.
-
-        :param running_avg:
-            Average price observed from
-            the beginning of the simulation
-            up to and including this period.
 
         :param cash_remaining:
             Available uninvested capital.
@@ -72,8 +48,7 @@ class Strategy(ABC):
     @abstractmethod
     def name(self) -> str:
         """
-        Returns a human-readable
-        strategy name.
+        Returns the strategy name.
         """
 
         pass

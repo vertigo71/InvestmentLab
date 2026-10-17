@@ -6,6 +6,7 @@ falls below a reference price.
 """
 
 from core.models.contribution_frequency import ContributionFrequency
+from core.models.price_point import PricePoint
 from core.models.reference_price import ReferencePrice
 
 from core.strategies.strategy import Strategy
@@ -120,46 +121,21 @@ class DrawdownDCA(Strategy):
 
     def contribution(
             self,
+            point: PricePoint,
             weekly_contribution: float,
-            period_index: int,
-            price: float,
-            running_max: float,
-            running_avg: float,
             cash_remaining: float
     ) -> float:
         """
-        Calculates the contribution amount.
-
-        :param weekly_contribution:
-            Base weekly contribution amount
-            proposed by the engine.
-
-        :param period_index:
-            Sequential index of the current period.
-
-        :param price:
-            Current asset price.
-
-        :param running_max:
-            Maximum asset price observed so far.
-
-        :param running_avg:
-            Average price observed from
-            the beginning of the simulation
-            up to and including this period.
-
-        :param cash_remaining:
-            Available uninvested capital.
-
-        :return:
-            Amount to invest during
-            the current period.
+        Invests at the configured frequency,
+        scaling the contribution by the
+        multiplier of the deepest drawdown
+        level reached.
         """
 
         # Skip periods that are not
         # contribution periods.
         if (
-                period_index %
+                point.period_index %
                 self.frequency.value
                 != 0
         ):
@@ -167,19 +143,18 @@ class DrawdownDCA(Strategy):
 
         # Select the reference price
         # used to calculate drawdown.
-        reference_price = running_max
-
-        if (
-                self.reference_price ==
-                ReferencePrice.RUNNING_AVG
-        ):
-            reference_price = running_avg
+        reference_price = (
+            point.running_avg
+            if self.reference_price ==
+               ReferencePrice.RUNNING_AVG
+            else point.running_max
+        )
 
         # Calculate current drawdown
         # from the selected reference.
         drawdown = (
                 1.0 -
-                price / reference_price
+                point.close / reference_price
         )
 
         multiplier: float = self.base_multiplier
