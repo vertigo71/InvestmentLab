@@ -16,7 +16,6 @@ from core.models.reference_price import (
 from core.providers.yahoo_loader import (
     YahooLoader
 )
-from core.strategies.dca import DCA
 from core.strategies.drawdown_dca import (
     DrawdownDCA
 )
