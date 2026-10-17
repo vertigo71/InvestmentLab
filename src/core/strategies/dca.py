@@ -1,10 +1,9 @@
 from core.models.contribution_frequency import ContributionFrequency
+from core.strategies.strategy import Strategy
 
 """
 Traditional Dollar Cost Averaging strategy.
 """
-
-from core.strategies.strategy import Strategy
 
 
 class DCA(Strategy):

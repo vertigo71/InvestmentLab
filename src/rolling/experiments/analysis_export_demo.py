@@ -14,7 +14,7 @@ from rolling.experiments.base import (
 from rolling.experiments.config import (
     ANALYSIS_CSV_OUTPUT_FILE
 )
-from rolling.exporters.rolling_analisys_csv_exporter import RollingAnalysisCsvExporter
+from rolling.exporters.rolling_analysis_csv_exporter import RollingAnalysisCsvExporter
 
 
 def main():

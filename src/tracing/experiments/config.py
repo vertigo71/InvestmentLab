@@ -32,12 +32,3 @@ SAFE_TICKER: Final = (
     TICKER.replace("^", "")
 )
 
-# Trace CSV export file.
-CSV_OUTPUT_FILE: Final = (
-        OUTPUT_FOLDER /
-        f"{GENERATED_ON}_"
-        f"tracing_"
-        f"{WINDOW_YEARS}y_"
-        f"{SAFE_TICKER}"
-        f".csv"
-)
