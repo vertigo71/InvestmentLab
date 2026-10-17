@@ -102,6 +102,26 @@ class YahooLoader:
         #
         df.columns = df.columns.get_level_values(0)
 
+        # Missing closing prices would silently
+        # corrupt running averages, drawdowns
+        # and share counts. Fail fast instead
+        # of dropping rows, since removing a
+        # week would also shift the
+        # contribution schedule.
+        missing = df.index[df["Close"].isna()]
+
+        if len(missing) > 0:
+            missing_dates = ", ".join(
+                str(index.date())
+                for index in missing
+            )
+
+            raise ValueError(
+                f"Missing closing prices for "
+                f"ticker '{ticker}' on: "
+                f"{missing_dates}"
+            )
+
         # Generated PricePoint objects.
         prices: list[PricePoint] = []
 
