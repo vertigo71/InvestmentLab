@@ -50,7 +50,7 @@ class RollingResultsAnalyzer:
         for result in results:
             winner_name = max(
                 result.strategy_results.items(),
-                key=lambda item: item[1].value
+                key=lambda item: item[1].total_value
             )[0]
 
             wins[winner_name] += 1
@@ -233,7 +233,7 @@ class RollingResultsAnalyzer:
             # strategy_results: dict[str, StrategyResult]
             ordered_result = sorted(
                 result.strategy_results.items(),
-                key=lambda item: item[1].value,
+                key=lambda item: item[1].total_value,
                 reverse=True
             )
 

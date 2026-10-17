@@ -13,11 +13,27 @@ class StrategyResult:
     """
     Stores the final portfolio metrics
     produced by a strategy.
+
+    value:
+        Market value of the accumulated
+        shares (invested position only).
+
+    cash:
+        Uninvested cash remaining.
     """
 
     value: float
     shares: float
     cash: float
+
+    @property
+    def total_value(self) -> float:
+        """
+        Returns the invested position
+        plus uninvested cash.
+        """
+
+        return self.value + self.cash
 
     def total_return(
             self,
@@ -28,7 +44,7 @@ class StrategyResult:
         """
 
         return (
-                self.value / initial_capital
+                self.total_value / initial_capital
         ) - 1
 
     def cagr(
@@ -40,4 +56,6 @@ class StrategyResult:
         Returns the annualized return.
         """
 
-        return (self.value / initial_capital) ** (1 / years) - 1
+        return (
+                self.total_value / initial_capital
+        ) ** (1 / years) - 1

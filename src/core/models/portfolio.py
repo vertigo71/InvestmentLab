@@ -21,25 +21,30 @@ class Portfolio:
     cash_remaining: float
     shares: float = 0.0
 
-    def buy(self,
-            amount: float,
-            price: float
-            ) -> None:
+    def buy(self, amount: float, price: float) -> float:
         """
         Purchases shares.
 
         Args:
             amount:
-                Amount of money to invest.
+                Amount of money requested
+                to invest.
 
             price:
                 Current asset price.
+
+        Returns:
+            Amount actually invested, which
+            may be lower than requested if
+            there is not enough cash.
         """
 
         amount = min(amount, self.cash_remaining)
 
         self.shares += amount / price
         self.cash_remaining -= amount
+
+        return amount
 
     def position_value(self,
                        current_price: float

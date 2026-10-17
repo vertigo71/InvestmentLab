@@ -26,7 +26,7 @@ def main():
         print(
             f"\n"
             f"{result.start_year}-"
-            f"{result.end_year}"
+            f"{result.end_year-1}"
         )
 
         for context in (
