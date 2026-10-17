@@ -56,6 +56,44 @@ class DrawdownDCA(Strategy):
                 RUNNING_AVG
         """
 
+        # Thresholds must be strictly increasing.
+        # The contribution loop keeps the
+        # multiplier of the last threshold
+        # exceeded, so unsorted levels would
+        # silently select the wrong multiplier.
+        thresholds = [
+            threshold
+            for threshold, _ in levels
+        ]
+
+        if thresholds != sorted(set(thresholds)):
+            raise ValueError(
+                f"Drawdown thresholds must be "
+                f"strictly increasing, got "
+                f"{thresholds}"
+            )
+
+        for threshold, multiplier in levels:
+
+            # Drawdown is 1 - price / reference,
+            # so it can never reach 1 (100%).
+            # Negative thresholds are valid:
+            # with RUNNING_AVG the drawdown is
+            # negative when the price is above
+            # the average.
+            if threshold >= 1.0:
+                raise ValueError(
+                    f"Drawdown threshold must be "
+                    f"lower than 1, got "
+                    f"{threshold}"
+                )
+
+            if multiplier <= 0:
+                raise ValueError(
+                    f"Multiplier must be positive, "
+                    f"got {multiplier}"
+                )
+            
         self.levels = levels
         self.frequency = frequency
         self.reference_price = reference_price
