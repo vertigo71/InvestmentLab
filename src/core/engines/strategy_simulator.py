@@ -67,14 +67,14 @@ class StrategySimulator:
 
         # Base contribution amount
         # proposed to all strategies.
-        contribution_amount = floor(
+        weekly_contribution = floor(
             initial_capital /
             investment_periods
         )
 
         for point in prices:
             requested = strategy.contribution(
-                weekly_contribution=contribution_amount,
+                weekly_contribution=weekly_contribution,
                 period_index=point.period_index,
                 price=point.close,
                 running_max=point.running_max,
