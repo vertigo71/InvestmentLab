@@ -6,6 +6,7 @@ portfolio state after a backtest.
 """
 
 from dataclasses import dataclass
+from datetime import date
 
 
 @dataclass
@@ -20,11 +21,21 @@ class StrategyResult:
 
     cash:
         Uninvested cash remaining.
+
+    start_date:
+        Date of the first price point
+        (first possible purchase).
+
+    end_date:
+        Date of the last price point
+        (final valuation).
     """
 
     value: float
     shares: float
     cash: float
+    start_date: date
+    end_date: date
 
     @property
     def total_value(self) -> float:
@@ -34,6 +45,19 @@ class StrategyResult:
         """
 
         return self.value + self.cash
+
+    @property
+    def years(self) -> float:
+        """
+        Elapsed time between the first
+        purchase and the final valuation,
+        in years.
+        """
+
+        return (
+                (self.end_date - self.start_date).days /
+                365.25
+        )
 
     def total_return(
             self,
@@ -49,13 +73,13 @@ class StrategyResult:
 
     def cagr(
             self,
-            initial_capital: float,
-            years: int
+            initial_capital: float
     ) -> float:
         """
-        Returns the annualized return.
+        Returns the annualized return over
+        the elapsed simulation time.
         """
 
         return (
                 self.total_value / initial_capital
-        ) ** (1 / years) - 1
+        ) ** (1 / self.years) - 1

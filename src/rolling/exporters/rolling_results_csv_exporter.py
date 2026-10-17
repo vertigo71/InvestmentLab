@@ -109,7 +109,6 @@ class RollingResultsCsvExporter:
                     row.append(
                         strategy_result.cagr(
                             result.initial_capital,
-                            result.window_years
                         )
                     )
 

@@ -87,7 +87,6 @@ class RollingResultsAnalyzer:
                 cagrs[strategy_name].append(
                     strategy_result.cagr(
                         result.initial_capital,
-                        result.window_years
                     )
                 )
 

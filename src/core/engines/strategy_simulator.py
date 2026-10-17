@@ -145,5 +145,7 @@ class StrategySimulator:
         return StrategyResult(
             value=last_step.position_value,
             shares=last_step.accumulated_shares,
-            cash=last_step.cash_remaining
+            cash=last_step.cash_remaining,
+            start_date=prices[0].date,
+            end_date=last_step.point.date
         )

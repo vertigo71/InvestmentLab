@@ -58,7 +58,6 @@ def main():
                 f"("
                 f"{strategy_result.cagr(
                     result.initial_capital,
-                    result.window_years
                 ):.2%}"
                 f")"
                 f"{cash_text}"
