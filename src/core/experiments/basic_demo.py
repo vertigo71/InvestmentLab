@@ -18,14 +18,14 @@ def main():
     backtest scenario.
     """
 
-    prices = YahooLoader.load(
+    series = YahooLoader.load(
         ticker="URTH",
         start_date="2016-01-01",
         end_date="2019-01-01"
     )
 
     result = StrategySimulator.run(
-        prices=prices,
+        series=series,
         strategy=AllIn(),
         initial_capital=INITIAL_CAPITAL
     )

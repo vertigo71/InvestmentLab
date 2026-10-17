@@ -4,7 +4,7 @@ strategy simulations.
 """
 
 from core.engines.strategy_simulator import StrategySimulator
-from core.models.price_point import PricePoint
+from core.models.price_series import PriceSeries
 from core.strategies.strategy import Strategy
 
 from tracing.models.strategy_trace import (
@@ -31,7 +31,7 @@ class StrategyTracer:
             ticker: str,
             start_date: str,
             end_date: str,
-            prices: list[PricePoint],
+            series: PriceSeries,
             strategy: Strategy,
             initial_capital: float
     ) -> StrategyTrace:
@@ -49,7 +49,7 @@ class StrategyTracer:
         :param end_date:
             Simulation end date.
 
-        :param prices:
+        :param series:
             Historical market prices.
 
         :param strategy:
@@ -69,7 +69,7 @@ class StrategyTracer:
         accumulated_contribution = 0.0
 
         for step in StrategySimulator.steps(
-                prices=prices,
+                series=series,
                 strategy=strategy,
                 initial_capital=initial_capital
         ):

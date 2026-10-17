@@ -15,7 +15,7 @@ This component is responsible for generating
 those windows from a complete historical dataset.
 """
 
-from core.models.price_point import PricePoint
+from core.models.price_series import PriceSeries
 from core.transformers.price_point_builder import PricePointBuilder
 from rolling.models.rolling_window import RollingWindow
 
@@ -28,7 +28,7 @@ class RollingWindowBuilder:
 
     @staticmethod
     def _create_window(
-            prices: list[PricePoint],
+            series: PriceSeries,
             start_year: int,
             window_years: int
     ) -> RollingWindow:
@@ -38,9 +38,10 @@ class RollingWindowBuilder:
         Running statistics and period indexes
         are recalculated from the first price
         of the window, as if the simulation
-        started there.
+        started there. The data frequency is
+        kept from the full series.
 
-        :param prices:
+        :param series:
             Complete historical dataset.
 
         :param start_year:
@@ -57,21 +58,24 @@ class RollingWindowBuilder:
 
         end_year = start_year + window_years
 
-        window_prices = PricePointBuilder.build(
+        window_points = PricePointBuilder.build(
             (point.date, point.close)
-            for point in prices
+            for point in series.points
             if start_year <= point.date.year < end_year
         )
 
         return RollingWindow(
             start_year=start_year,
             end_year=end_year,
-            prices=window_prices
+            series=PriceSeries(
+                frequency=series.frequency,
+                points=window_points
+            )
         )
 
     @staticmethod
     def create_windows(
-            prices: list[PricePoint],
+            series: PriceSeries,
             window_years: int
     ) -> list[RollingWindow]:
         """
@@ -85,7 +89,7 @@ class RollingWindowBuilder:
             2017-2020
             2018-2021
 
-        :param prices:
+        :param series:
             Complete historical dataset.
 
         :param window_years:
@@ -100,8 +104,8 @@ class RollingWindowBuilder:
 
         windows: list[RollingWindow] = []
 
-        first_year = prices[0].date.year
-        last_year = prices[-1].date.year
+        first_year = series.points[0].date.year
+        last_year = series.points[-1].date.year
 
         for start_year in range(
                 first_year,
@@ -109,7 +113,7 @@ class RollingWindowBuilder:
         ):
             windows.append(
                 RollingWindowBuilder._create_window(
-                    prices=prices,
+                    series=series,
                     start_year=start_year,
                     window_years=window_years
                 )

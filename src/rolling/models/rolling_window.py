@@ -9,7 +9,8 @@ Examples:
 """
 
 from dataclasses import dataclass
-from core.models.price_point import PricePoint
+
+from core.models.price_series import PriceSeries
 
 
 @dataclass
@@ -21,4 +22,4 @@ class RollingWindow:
 
     start_year: int
     end_year: int
-    prices: list[PricePoint]
+    series: PriceSeries

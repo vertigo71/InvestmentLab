@@ -4,21 +4,30 @@ Yahoo Finance historical data loader.
 
 import yfinance as yf  # type: ignore
 
-from core.models.price_point import PricePoint
+from core.models.data_frequency import DataFrequency
+from core.models.price_series import PriceSeries
 from core.transformers.price_point_builder import PricePointBuilder
+
+# Yahoo Finance download interval
+# for each data frequency.
+_INTERVALS: dict[DataFrequency, str] = {
+    DataFrequency.DAILY: "1d",
+    DataFrequency.WEEKLY: "1wk",
+    DataFrequency.MONTHLY: "1mo",
+}
 
 
 # noinspection unresolved-references
 class YahooLoader:
 
-    # noinspection unresolved-references,unresolved-references
     @staticmethod
     def load(
             ticker: str,
             start_date: str,
             end_date: str,
+            frequency: DataFrequency = DataFrequency.WEEKLY,
             auto_adjust: bool = True
-    ) -> list[PricePoint]:
+    ) -> PriceSeries:
         """
         Loads historical market data from Yahoo Finance.
 
@@ -30,6 +39,10 @@ class YahooLoader:
 
         :param end_date:
             Download end date in YYYY-MM-DD format.
+
+        :param frequency:
+            Data frequency to download.
+            Defaults to weekly.
 
         :param auto_adjust:
             Whether Yahoo Finance should
@@ -44,7 +57,8 @@ class YahooLoader:
             False returns raw market prices.
 
         :return:
-            Historical periodic prices.
+            Price series tagged with the
+            requested frequency.
 
         :raises ValueError:
             If no data is returned.
@@ -55,7 +69,7 @@ class YahooLoader:
             ticker,
             start=start_date,
             end=end_date,
-            interval="1wk",
+            interval=_INTERVALS[frequency],
             auto_adjust=auto_adjust
         )
 
@@ -123,10 +137,13 @@ class YahooLoader:
                 f"{missing_dates}"
             )
 
-        return PricePointBuilder.build(
-            (
-                row.Index.date(),
-                float(row.Close)
+        return PriceSeries(
+            frequency=frequency,
+            points=PricePointBuilder.build(
+                (
+                    row.Index.date(),
+                    float(row.Close)
+                )
+                for row in df.itertuples()
             )
-            for row in df.itertuples()
         )

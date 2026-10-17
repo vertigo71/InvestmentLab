@@ -42,7 +42,7 @@ def main():
     exports it to CSV.
     """
 
-    prices = YahooLoader.load(
+    series = YahooLoader.load(
         ticker=TICKER,
         start_date=START_DATE,
         end_date=END_DATE,
@@ -81,7 +81,7 @@ def main():
         ticker=TICKER,
         start_date=START_DATE,
         end_date=END_DATE,
-        prices=prices,
+        series=series,
         strategy=strategy,
         initial_capital=
         INITIAL_CAPITAL

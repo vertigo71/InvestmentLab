@@ -53,7 +53,7 @@ class RollingBase:
             configured strategies.
         """
 
-        prices = YahooLoader.load(
+        series = YahooLoader.load(
             ticker=TICKER,
             start_date=START_DATE,
             end_date=END_DATE
@@ -61,7 +61,7 @@ class RollingBase:
 
         windows = (
             RollingWindowBuilder.create_windows(
-                prices=prices,
+                series=series,
                 window_years=WINDOW_YEARS
             )
         )

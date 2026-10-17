@@ -49,7 +49,7 @@ class RollingBacktestEngine:
                 strategy_results[
                     strategy.name()
                 ] = StrategySimulator.run(
-                    prices=window.prices,
+                    series=window.series,
                     strategy=strategy,
                     initial_capital=initial_capital
                 )

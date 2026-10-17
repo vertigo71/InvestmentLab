@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from math import floor
 
 from core.models.portfolio import Portfolio
-from core.models.price_point import PricePoint
+from core.models.price_series import PriceSeries
 from core.models.simulation_step import SimulationStep
 from core.models.strategy_result import StrategyResult
 from core.strategies.strategy import Strategy
@@ -12,7 +12,7 @@ class StrategySimulator:
 
     @staticmethod
     def steps(
-            prices: list[PricePoint],
+            series: PriceSeries,
             strategy: Strategy,
             initial_capital: float
     ) -> Iterator[SimulationStep]:
@@ -26,7 +26,7 @@ class StrategySimulator:
         trace (StrategyTracer) are built
         from these steps.
 
-        :param prices:
+        :param series:
             Historical market prices.
 
         :param strategy:
@@ -43,6 +43,8 @@ class StrategySimulator:
             If fewer than two prices are
             provided.
         """
+
+        prices = series.points
 
         if len(prices) < 2:
             raise ValueError(
@@ -103,7 +105,7 @@ class StrategySimulator:
 
     @staticmethod
     def run(
-            prices: list[PricePoint],
+            series: PriceSeries,
             strategy: Strategy,
             initial_capital: float
     ) -> StrategyResult:
@@ -119,7 +121,7 @@ class StrategySimulator:
         makes strategies with uninvested
         cash comparable with lump sum.
 
-        :param prices:
+        :param series:
             Historical market prices.
 
         :param strategy:
@@ -145,7 +147,7 @@ class StrategySimulator:
         max_drawdown = 0.0
 
         for step in StrategySimulator.steps(
-                prices=prices,
+                series=series,
                 strategy=strategy,
                 initial_capital=initial_capital
         ):
@@ -169,7 +171,7 @@ class StrategySimulator:
             value=last_step.position_value,
             shares=last_step.accumulated_shares,
             cash=last_step.cash_remaining,
-            start_date=prices[0].date,
+            start_date=series.points[0].date,
             end_date=last_step.point.date,
             max_drawdown=max_drawdown
         )
