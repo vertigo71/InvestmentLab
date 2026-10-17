@@ -16,6 +16,7 @@ from core.models.reference_price import (
 from core.providers.yahoo_loader import (
     YahooLoader
 )
+from core.strategies.dca import DCA
 from core.strategies.drawdown_dca import (
     DrawdownDCA
 )
@@ -46,8 +47,12 @@ def main():
         ticker=TICKER,
         start_date=START_DATE,
         end_date=END_DATE,
-        auto_adjust=True  # dividends are reinverted in the fund
+        auto_adjust=False  # required so data doesn't change between repetitions
     )
+
+    # strategy = DCA(
+    #     frequency=ContributionFrequency.BIWEEKLY,
+    # )
 
     strategy = DrawdownDCA(
         levels=[
