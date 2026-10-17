@@ -284,7 +284,22 @@ class RollingResultsAnalyzer:
 
         :return:
             Analysis metrics.
+
+        :raises ValueError:
+            If fewer than two rolling windows
+            are provided.
         """
+
+        # Aggregate statistics such as the
+        # CAGR standard deviation are not
+        # defined for a single window.
+        if len(results) < 2:
+            raise ValueError(
+                f"Rolling analysis requires at least "
+                f"two windows, got {len(results)}. "
+                f"Widen the date range or reduce "
+                f"WINDOW_YEARS."
+            )
 
         return [
 
