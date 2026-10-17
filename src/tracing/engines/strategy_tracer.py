@@ -121,6 +121,12 @@ class StrategyTracer:
                     shares_before
             )
 
+            # Market value of the
+            # accumulated shares.
+            position_value = portfolio.position_value(
+                point.close
+            )
+
             accumulated_contribution += (
                 contribution
             )
