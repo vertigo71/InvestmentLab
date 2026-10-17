@@ -10,9 +10,6 @@ from core.config import (
     OUTPUT_FOLDER
 )
 
-# Rolling window length.
-WINDOW_YEARS: Final = 5
-
 # Available datasets:
 #
 # URTH
@@ -24,10 +21,11 @@ WINDOW_YEARS: Final = 5
 TICKER: Final = "^SP500TR"
 
 # Historical data range.
-# Only full years
 START_DATE: Final = "1990-01-01"
-
 END_DATE: Final = "2026-01-01"
+
+# Rolling window length.
+WINDOW_YEARS: Final = 3
 
 # File-system safe ticker symbol.
 SAFE_TICKER: Final = (
