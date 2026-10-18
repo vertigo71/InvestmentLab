@@ -325,7 +325,7 @@ series = CsvLoader.load(
 | `URTH` (Yahoo)        | iShares MSCI World ETF (from 2012).                                                           |
 | `VT` (Yahoo)          | Vanguard Total World Stock ETF (from 2008).                                                   |
 | `0P...` codes (Yahoo) | European funds, using Morningstar identifiers.                                                |
-| Shiller (CSV)         | S&P Composite nominal total return, monthly, from 1871. See [Shiller data](#shiller-data).   |
+| Shiller (CSV)         | S&P Composite nominal total return, monthly, from 1871. See [Shiller data](#shiller-data).    |
 | Any CSV               | Two columns, `date` (YYYY-MM-DD) and `close`, read with `CsvLoader`.                          |
 
 ### Outputs

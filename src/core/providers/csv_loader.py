@@ -61,13 +61,13 @@ class CsvLoader:
             are not strictly increasing.
         """
 
-        start : date | None = (
+        start: date | None = (
             date.fromisoformat(start_date)
             if start_date
             else None
         )
 
-        end : date | None = (
+        end: date | None = (
             date.fromisoformat(end_date)
             if end_date
             else None

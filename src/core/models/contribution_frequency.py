@@ -21,6 +21,33 @@ class ContributionFrequency(Enum):
     BIWEEKLY = "BIWEEKLY"
     MONTHLY = "MONTHLY"
 
+    def supports(
+            self,
+            data_frequency: DataFrequency
+    ) -> bool:
+        """
+        Returns whether contributions at this
+        frequency are possible with the given
+        data frequency.
+
+        Unlike periods(), it does not raise,
+        so it can be used to filter strategies
+        before running a simulation.
+
+        :param data_frequency:
+            Frequency of the price data.
+
+        :return:
+            True if periods() would succeed.
+
+            Examples:
+
+                MONTHLY.supports(MONTHLY)  -> True
+                BIWEEKLY.supports(MONTHLY) -> False
+        """
+
+        return self in _PERIODS[data_frequency]
+
     def periods(
             self,
             data_frequency: DataFrequency

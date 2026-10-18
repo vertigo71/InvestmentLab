@@ -40,12 +40,12 @@ why.
 Start with one share at price `p0`. Each period, every share pays the
 dividend, and the dividend is reinvested at the current price.
 
-| Period | Price | Dividend per share | Shares after reinvesting          | Portfolio value                   | Growth                            |
-|--------|-------|--------------------|-----------------------------------|-----------------------------------|-----------------------------------|
-| 0      | p0    | –                  | N0 = 1                            | V0 = p0                           |                                   |
-| 1      | p1    | d1                 | N1 = 1 + d1/p1                    | V1 = p1 · N1 = p1 + d1            | V1 / V0 = (p1 + d1) / p0          |
-| 2      | p2    | d2                 | N2 = N1 · (1 + d2/p2)             | V2 = p2 · N2 = N1 · (p2 + d2)     | V2 / V1 = (p2 + d2) / p1          |
-| t      | p[t]  | d[t]               | N[t] = N[t-1] · (1 + d[t]/p[t])   | V[t] = N[t-1] · (p[t] + d[t])     | V[t] / V[t-1] = (p[t] + d[t]) / p[t-1] |
+| Period | Price | Dividend per share | Shares after reinvesting        | Portfolio value               | Growth                                 |
+|--------|-------|--------------------|---------------------------------|-------------------------------|----------------------------------------|
+| 0      | p0    | –                  | N0 = 1                          | V0 = p0                       |                                        |
+| 1      | p1    | d1                 | N1 = 1 + d1/p1                  | V1 = p1 · N1 = p1 + d1        | V1 / V0 = (p1 + d1) / p0               |
+| 2      | p2    | d2                 | N2 = N1 · (1 + d2/p2)           | V2 = p2 · N2 = N1 · (p2 + d2) | V2 / V1 = (p2 + d2) / p1               |
+| t      | p[t]  | d[t]               | N[t] = N[t-1] · (1 + d[t]/p[t]) | V[t] = N[t-1] · (p[t] + d[t]) | V[t] / V[t-1] = (p[t] + d[t]) / p[t-1] |
 
 In every row, the number of shares of the previous period appears in
 both the current and the previous value, and cancels out in the
@@ -138,11 +138,11 @@ makes dividend reinvestment matter.
 Prices 100, 110 and 140, with dividends of 10 and 15 per share
 (exaggerated to make the effect visible):
 
-| Period | Price | Dividend | New shares                   | Shares | Value                  | Growth          |
-|--------|-------|----------|------------------------------|--------|------------------------|-----------------|
-| 0      | 100   | –        | –                            | 1.0000 | 100.00                 |                 |
-| 1      | 110   | 10       | 10 / 110 = 0.0909            | 1.0909 | 1.0909 × 110 = 120.00  | 120 / 100 = 1.2000 |
-| 2      | 140   | 15       | 1.0909 × 15 / 140 = 0.1169   | 1.2078 | 1.2078 × 140 = 169.09  | 155 / 110 = 1.4091 |
+| Period | Price | Dividend | New shares                 | Shares | Value                 | Growth             |
+|--------|-------|----------|----------------------------|--------|-----------------------|--------------------|
+| 0      | 100   | –        | –                          | 1.0000 | 100.00                |                    |
+| 1      | 110   | 10       | 10 / 110 = 0.0909          | 1.0909 | 1.0909 × 110 = 120.00 | 120 / 100 = 1.2000 |
+| 2      | 140   | 15       | 1.0909 × 15 / 140 = 0.1169 | 1.2078 | 1.2078 × 140 = 169.09 | 155 / 110 = 1.4091 |
 
 Check: `100 × 1.2000 × 1.4091 = 169.09`.
 
