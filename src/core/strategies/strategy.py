@@ -1,9 +1,24 @@
+"""
+Defines the base contract for all investment strategies.
+
+Every strategy decides how much capital should be
+invested on each contribution period. The contribution
+schedule is computed by the simulator from the strategy
+frequency and the data frequency.
+
+Examples:
+
+    - All In
+    - Fixed DCA
+    - Drawdown DCA
+    - Moving Average DCA
+"""
+
 from abc import ABC
 from abc import abstractmethod
 
 from core.models.contribution_frequency import ContributionFrequency
 from core.models.price_point import PricePoint
-
 
 class Strategy(ABC):
     """
