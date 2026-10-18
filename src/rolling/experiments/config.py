@@ -44,7 +44,7 @@ DATA_SOURCE: Final[DataSource] = CsvSource(
 )
 
 # Historical data range.
-START_DATE: Final = "1990-01-01"
+START_DATE: Final = "1800-01-01"
 END_DATE: Final = "2026-01-01"
 
 # Rolling window length.
