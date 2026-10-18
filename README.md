@@ -24,8 +24,9 @@ CAGR, CAGR dispersion) and risk (maximum drawdown).
   from local CSV files.
 - Monthly US stock market data since 1871 from Robert Shiller,
   converted to a nominal total return series.
-- Data frequency travels with the prices, so impossible combinations
-  (e.g. weekly contributions on monthly data) fail early.
+- Data frequency travels with the prices. Strategies that are not
+  possible with the data (e.g. biweekly contributions on monthly data)
+  are skipped with a warning.
 - Pluggable strategies through a common `Strategy` interface.
 - Rolling-window backtests with aggregated return and risk analysis.
 - Detailed per-period execution traces, exportable to CSV, used to
@@ -66,8 +67,11 @@ the other, as the number of data rows between two contributions:
 | `MONTHLY`           | 21      | 4        | 1         |
 
 `MONTHLY` with daily or weekly data is an approximation (21 trading
-days, 4 weeks). Impossible combinations raise a `ValueError` before
-the simulation starts.
+days, 4 weeks). In the rolling analysis, strategies with an impossible
+combination are skipped with a warning on stderr, so the strategy
+factory does not need changes when switching data sources. Calling
+the simulator directly with an impossible combination raises a
+`ValueError`.
 
 ### Drawdown DCA
 
@@ -219,9 +223,12 @@ InvestmentLab/
     │   │                       DataFrequency, ContributionFrequency,
     │   │                       ReferencePrice
     │   ├── providers/
+    │   │   ├── data_source.py  DataSource base class
+    │   │   ├── yahoo_source.py Yahoo Finance data source
+    │   │   ├── csv_source.py   CSV file data source
     │   │   ├── yahoo_loader.py Yahoo Finance download and validation
     │   │   ├── csv_loader.py   Generic date,close CSV loader
-    │   │   └── market_context_provider.py
+    │   │   └── market_context_provider.py    
     │   ├── strategies/         Strategy interface and implementations
     │   └── transformers/
     │       └── price_point_builder.py   Period indexes and running stats
@@ -284,36 +291,35 @@ python -m tools.shiller_converter
 
 ### Configuration
 
-| What                                      | Where                                   |
-|-------------------------------------------|-----------------------------------------|
-| Initial capital, input and output folders | `core/config.py`                        |
-| Rolling ticker, date range, window length | `rolling/experiments/config.py`         |
-| Rolling data source and frequency         | `rolling/experiments/base.py`           |
-| Strategies to compare                     | `rolling/factories/strategy_factory.py` |
-| Trace ticker and date range               | `tracing/experiments/config.py`         |
-| Traced strategy                           | `tracing/experiments/trace_demo.py`     |
+| What                                           | Where                                   |
+|------------------------------------------------|-----------------------------------------|
+| Initial capital, input and output folders      | `core/config.py`                        |
+| Rolling data source, date range, window length | `rolling/experiments/config.py`         |
+| Strategies to compare                          | `rolling/factories/strategy_factory.py` |
+| Trace ticker and date range                    | `tracing/experiments/config.py`         |
+| Traced strategy                                | `tracing/experiments/trace_demo.py`     |
 
-The rolling analysis loads weekly data from Yahoo by default. To use
-another frequency or a CSV file, change the loader call in
-`rolling/experiments/base.py`:
+The rolling analysis reads its prices from `DATA_SOURCE` in
+`rolling/experiments/config.py`. Each source holds everything that
+defines it, including the data frequency, and its `name` is used in
+the output file names:
 
 ```python
-# Yahoo, monthly data
-series = YahooLoader.load(
-    ticker=TICKER,
-    start_date=START_DATE,
-    end_date=END_DATE,
-    frequency=DataFrequency.MONTHLY
+# Yahoo Finance, weekly by default
+DATA_SOURCE: Final[DataSource] = YahooSource(
+    ticker="^SP500TR"
 )
 
 # Local CSV (e.g. converted Shiller data)
-series = CsvLoader.load(
+DATA_SOURCE: Final[DataSource] = CsvSource(
+    label="SHILLER",
     path=INPUT_FOLDER / "shiller_sp_tr_monthly.csv",
-    frequency=DataFrequency.MONTHLY,
-    start_date=START_DATE,
-    end_date=END_DATE
+    frequency=DataFrequency.MONTHLY
 )
 ```
+
+Keep exactly one of them uncommented. `YahooSource` also accepts
+`frequency` and `auto_adjust`.
 
 ### Data sources
 
@@ -468,7 +474,7 @@ derivation of the formula, a worked example with the first months of
   end-of-period prices, and drawdown DCA strategies react less.
   Results are not directly comparable with weekly Yahoo data.
 - **Only monthly contributions.** With monthly data, `WEEKLY` and
-  `BIWEEKLY` contributions raise an error.
+  `BIWEEKLY` strategies are skipped with a warning.
 - **Dividends are approximations.** They are interpolated, received
   as one twelfth of the annual amount and reinvested at the monthly
   price.
@@ -502,9 +508,6 @@ derivation of the formula, a worked example with the first months of
 
 ### Data
 
-- **Data source in the config.** Choose Yahoo or CSV, and the data
-  frequency, in `rolling/experiments/config.py` instead of editing
-  `base.py`.
 - **Local cache for Yahoo data.** Store downloaded prices in a file so
   every run, the rolling analysis and the spreadsheet use exactly the
   same data.
