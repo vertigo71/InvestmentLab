@@ -14,6 +14,11 @@ PROJECT_ROOT: Final = (
     .parent  # project
 )
 
+# Input data directory.
+INPUT_FOLDER: Final = (
+        PROJECT_ROOT / "inputs"
+)
+
 # Output directory.
 OUTPUT_FOLDER: Final = (
         PROJECT_ROOT / "outputs"
