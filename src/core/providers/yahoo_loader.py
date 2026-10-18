@@ -17,7 +17,6 @@ _INTERVALS: dict[DataFrequency, str] = {
 }
 
 
-# noinspection unresolved-references
 class YahooLoader:
 
     @staticmethod
@@ -123,6 +122,7 @@ class YahooLoader:
         # of dropping rows, since removing a
         # week would also shift the
         # contribution schedule.
+        # missing = [date for date, value in df["Close"].items() if pd.isna(value)]
         missing = df.index[df["Close"].isna()]
 
         if len(missing) > 0:
@@ -145,5 +145,7 @@ class YahooLoader:
                     float(row.Close)
                 )
                 for row in df.itertuples()
+                # Pandas(Index=Timestamp('2026-01-02 00:00:00'), Close=98.3, Volume=1200)
+                # Pandas(Index=Timestamp('2026-01-05 00:00:00'), Close=99.1, Volume=900)
             )
         )

@@ -8,6 +8,7 @@ from rolling.experiments.base import RollingBase
 from core.providers.market_context_provider import (
     MarketContextProvider
 )
+from rolling.models.rolling_window_result import RollingWindowResult
 
 
 def main():
@@ -17,7 +18,7 @@ def main():
     every window.
     """
 
-    results = (
+    results: list[RollingWindowResult] = (
         RollingBase.build_results()
     )
 
@@ -39,6 +40,10 @@ def main():
                 f"  • {context}"
             )
 
+        # {
+        #     "ALL_IN": StrategyResult [value, shares, cash, ...],
+        #     "DCA_BIWEEKLY": StrategyResult [value, shares, cash, ...]
+        # }
         for (
                 strategy_name,
                 strategy_result
@@ -56,9 +61,7 @@ def main():
                 f"{strategy_name}: "
                 f"{strategy_result.value:,.2f} "
                 f"("
-                f"{strategy_result.cagr(
-                    result.initial_capital
-                ):.2%}"
+                f"{strategy_result.cagr():.2%}"
                 f")"
                 f" MaxDD: "
                 f"{strategy_result.max_drawdown:.2%}"

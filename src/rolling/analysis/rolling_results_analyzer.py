@@ -50,7 +50,25 @@ class RollingResultsAnalyzer:
         }
 
         for result in results:
-            winner_name = max(
+            # {
+            #     "ALL_IN": StrategyResult [total_value, value, shares, cash, ...],
+            #     "DCA_BIWEEKLY": StrategyResult [total_value, value, shares, cash, ...]
+            # }
+            # Find the strategy with the highest
+            # total value in this window.
+            #
+            # items() yields (name, result) pairs:
+            #
+            #     ("ALL_IN", StrategyResult(...))
+            #
+            # max() compares pairs by the total
+            # value of the result (item[1]) and
+            # returns the winning pair. [0] keeps
+            # only its name.
+            #
+            # On ties, max() keeps the first
+            # strategy in factory order.
+            winner_name: str = max(
                 result.strategy_results.items(),
                 key=lambda item: item[1].total_value
             )[0]
@@ -63,7 +81,7 @@ class RollingResultsAnalyzer:
     def _group_by_strategy(
             results: list[RollingWindowResult],
             metric: Callable[
-                [RollingWindowResult, StrategyResult],
+                [StrategyResult],
                 float
             ]
     ) -> dict[str, list[float]]:
@@ -76,26 +94,34 @@ class RollingResultsAnalyzer:
 
         :param metric:
             Function returning the value to
-            extract from a strategy result
-            within its window.
+            extract from a strategy result.
 
         :return:
             Metric values grouped by strategy.
+            {
+            #     "ALL_IN":  [ 12, 13,...]
+            #     "DCA_BIWEEKLY":  [ 12, 16,...]
+            # }
         """
 
         grouped: dict[str, list[float]] = {}
 
+        result: RollingWindowResult
         for result in results:
-
+            # {
+            #     "ALL_IN": StrategyResult [value, shares, cash, ...],
+            #     "DCA_BIWEEKLY": StrategyResult [value, shares, cash, ...]
+            # }
             for (
                     strategy_name,
                     strategy_result
             ) in result.strategy_results.items():
+                # grouped[strategy_name].append(metric(result, strategy_result))
                 grouped.setdefault(  # add if it didn't exist
                     strategy_name,
                     []
                 ).append(
-                    metric(result, strategy_result)
+                    metric(strategy_result)
                 )
 
         return grouped
@@ -115,10 +141,7 @@ class RollingResultsAnalyzer:
 
         return RollingResultsAnalyzer._group_by_strategy(
             results,
-            lambda result, strategy_result:
-            strategy_result.cagr(
-                result.initial_capital
-            )
+            lambda strategy_result: strategy_result.cagr()
         )
 
     @staticmethod
@@ -132,8 +155,7 @@ class RollingResultsAnalyzer:
 
         return RollingResultsAnalyzer._group_by_strategy(
             results,
-            lambda _, strategy_result:
-            strategy_result.max_drawdown
+            lambda strategy_result: strategy_result.max_drawdown
         )
 
     @staticmethod

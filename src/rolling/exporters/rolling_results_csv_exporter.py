@@ -107,9 +107,7 @@ class RollingResultsCsvExporter:
                     )
 
                     row.append(
-                        strategy_result.cagr(
-                            result.initial_capital,
-                        )
+                        strategy_result.cagr()
                     )
 
                 writer.writerow(

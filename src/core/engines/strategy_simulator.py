@@ -53,7 +53,7 @@ class StrategySimulator:
             )
 
         portfolio = Portfolio(
-            initial_capital
+            cash_remaining=initial_capital
         )
 
         # Base contribution per data period.
@@ -198,6 +198,7 @@ class StrategySimulator:
             value=last_step.position_value,
             shares=last_step.accumulated_shares,
             cash=last_step.cash_remaining,
+            initial_capital=initial_capital,
             start_date=series.points[0].date,
             end_date=last_step.point.date,
             max_drawdown=max_drawdown

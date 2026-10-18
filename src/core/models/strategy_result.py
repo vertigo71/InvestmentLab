@@ -22,6 +22,10 @@ class StrategyResult:
     cash:
         Uninvested cash remaining.
 
+    initial_capital:
+        Capital available at the start
+        of the simulation.
+
     start_date:
         Date of the first price point
         (first possible purchase).
@@ -40,6 +44,7 @@ class StrategyResult:
     value: float
     shares: float
     cash: float
+    initial_capital: float
     start_date: date
     end_date: date
     max_drawdown: float
@@ -66,27 +71,21 @@ class StrategyResult:
                 365.25
         )
 
-    def total_return(
-            self,
-            initial_capital: float
-    ) -> float:
+    def total_return(self) -> float:
         """
         Returns the total return.
         """
 
         return (
-                self.total_value / initial_capital
+                self.total_value / self.initial_capital
         ) - 1
 
-    def cagr(
-            self,
-            initial_capital: float
-    ) -> float:
+    def cagr(self) -> float:
         """
         Returns the annualized return over
         the elapsed simulation time.
         """
 
         return (
-                self.total_value / initial_capital
+                self.total_value / self.initial_capital
         ) ** (1 / self.years) - 1
