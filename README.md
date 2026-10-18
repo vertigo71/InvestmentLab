@@ -202,6 +202,8 @@ code used by the rolling analysis.
 
 ```
 InvestmentLab/
+├── docs/
+│   └── theoretical_base.md     Derivations and worked examples
 ├── inputs/                     Input data files (Shiller, CSV prices)
 ├── outputs/                    Generated CSV files
 └── src/
@@ -323,7 +325,7 @@ series = CsvLoader.load(
 | `URTH` (Yahoo)        | iShares MSCI World ETF (from 2012).                                                           |
 | `VT` (Yahoo)          | Vanguard Total World Stock ETF (from 2008).                                                   |
 | `0P...` codes (Yahoo) | European funds, using Morningstar identifiers.                                                |
-| Shiller (CSV)         | S&P Composite nominal total return, monthly, from 1871. See [Shiller data](#shiller-data).    |
+| Shiller (CSV)         | S&P Composite nominal total return, monthly, from 1871. See [Shiller data](#shiller-data).   |
 | Any CSV               | Two columns, `date` (YYYY-MM-DD) and `close`, read with `CsvLoader`.                          |
 
 ### Outputs
@@ -441,69 +443,23 @@ such as 1929.
 The converted CSV acts as a local cache: every run uses the same data
 until the file is regenerated.
 
-### Columns used
+### How the series is built
 
-| Column | Meaning                                                                                                                            | Example (April 2025)  |
-|--------|------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
-| `Date` | Year and month as a number. `1871.01` is January, `1871.1` is October (Excel drops the trailing zero).                             | `2025.04`             |
-| `P`    | S&P Composite price: **monthly average** of daily closes, not the end-of-month close.                                              | `5369.50`             |
-| `D`    | Dividends of the last 12 months, in index points. Since 1926 interpolated from S&P quarterly totals; before 1926 from annual data. | `76.55` (1.43% yield) |
-
-The file also contains a *Real Total Return Price* column, but it is
-**inflation-adjusted**. The converter builds a **nominal** series
-instead, so it is comparable with Yahoo prices, cash and interest
-rates.
-
-### Building the total return series
-
-Each month, the growth factor combines the price change with one
-twelfth of the annual dividend:
+The converter uses the price (`P`, monthly average of daily closes)
+and the annual dividend (`D`) of each month, and reinvests one twelfth
+of the dividend every month:
 
 ```
 growth = (P[t] + D[t] / 12) / P[t-1]
 ```
 
-The cumulative product of these factors gives the growth of an
-investment with dividends reinvested. Multiplying it by the first
-price makes the series start at the index level.
+The cumulative product of these factors is the total return series.
+It is **nominal**: the file's *Real Total Return Price* column is
+inflation-adjusted and is not used.
 
-In pandas:
-
-```python
-growth = (data["price"] + data["dividend"] / 12) / data["price"].shift(1)
-total_return = data["price"].iloc[0] * growth.fillna(1.0).cumprod()
-```
-
-### Worked example (first months of 1871)
-
-Monthly dividend: `0.26 / 12 = 0.02167`.
-
-| Row | Date    | P    | D    | P.shift(1) | growth  | after fillna | cumprod | close (CSV) |
-|-----|---------|------|------|------------|---------|--------------|---------|-------------|
-| 0   | 1871-01 | 4.44 | 0.26 | NaN        | NaN     | 1.00000      | 1.00000 | 4.4400      |
-| 1   | 1871-02 | 4.50 | 0.26 | 4.44       | 1.01839 | 1.01839      | 1.01839 | 4.5217      |
-| 2   | 1871-03 | 4.61 | 0.26 | 4.50       | 1.02926 | 1.02926      | 1.04819 | 4.6540      |
-| 3   | 1871-04 | 4.74 | 0.26 | 4.61       | 1.03290 | 1.03290      | 1.08268 | 4.8071      |
-
-- `shift(1)` moves the price down one row, so each month sees the
-  previous price. The first row has none and gets `NaN`.
-- `growth` for February: `(4.50 + 0.02167) / 4.44 = 1.01839`, a 1.84%
-  gain, of which 1.35% comes from the price and the rest from the
-  dividend.
-- `fillna(1.0)` sets the first month's factor to 1: it is the starting
-  point.
-- `cumprod()` multiplies all factors up to each row:
-  `1.01839 × 1.02926 = 1.04819`.
-- `iloc[0]` is the first price (4.44). Multiplying by it makes the
-  series start at the index level, so the first row matches the
-  spreadsheet.
-
-After three months the total return series is up 8.27%, against 6.76%
-for the price alone.
-
-As a cross-check, Shiller's own *Real Total Return Price* multiplied by
-the CPI gives almost the same monthly change: from March to April 2025,
-`0.94581` versus `0.94579` with this formula.
+See [docs/theoretical_base.md](docs/theoretical_base.md) for the
+derivation of the formula, a worked example with the first months of
+1871 and a comparison with Shiller's own real series.
 
 ### Limitations
 
