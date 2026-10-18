@@ -182,7 +182,6 @@ class RollingResultsAnalyzer:
         return {
             strategy_name:
                 sum(values) / len(values)
-
             for strategy_name, values
             in strategy_cagrs.items()
         }
@@ -210,7 +209,6 @@ class RollingResultsAnalyzer:
 
         return {
             strategy_name: max(values)
-
             for strategy_name, values
             in strategy_cagrs.items()
         }
@@ -238,7 +236,6 @@ class RollingResultsAnalyzer:
 
         return {
             strategy_name: min(values)
-
             for strategy_name, values
             in strategy_cagrs.items()
         }
@@ -266,7 +263,6 @@ class RollingResultsAnalyzer:
 
         return {
             strategy_name: stdev(values)
-
             for strategy_name, values
             in strategy_cagrs.items()
         }
@@ -296,7 +292,8 @@ class RollingResultsAnalyzer:
             # to worst according to the
             # final portfolio value.
             # strategy_results: dict[str, StrategyResult]
-            ordered_result = sorted(
+            # item[0]=strategy_name, item[1]=StrategyResult
+            ordered_result: list[tuple[str, StrategyResult]] = sorted(
                 result.strategy_results.items(),
                 key=lambda item: item[1].total_value,
                 reverse=True
@@ -313,11 +310,9 @@ class RollingResultsAnalyzer:
                     ordered_result,
                     start=1
             ):
-
-                if strategy_name not in ranks:
-                    ranks[strategy_name] = []
-
-                ranks[strategy_name].append(
+                ranks.setdefault(
+                    strategy_name, []
+                ).append(
                     rank
                 )
 
@@ -349,7 +344,6 @@ class RollingResultsAnalyzer:
         return {
             strategy_name:
                 sum(values) / len(values)
-
             for strategy_name, values
             in drawdowns.items()
         }
@@ -372,7 +366,6 @@ class RollingResultsAnalyzer:
 
         return {
             strategy_name: max(values)
-
             for strategy_name, values
             in drawdowns.items()
         }
