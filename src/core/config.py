@@ -27,6 +27,15 @@ OUTPUT_FOLDER: Final = (
 # Default initial portfolio value.
 INITIAL_CAPITAL: Final = 100000
 
+# Annual interest rate earned by uninvested
+# cash, e.g. 0.02 for a money market fund
+# yielding 2% per year.
+#
+# Applied every period from the actual
+# elapsed days. 0.0 means cash earns
+# nothing.
+CASH_ANNUAL_RATE: Final = 0.0
+
 # Current export date.
 GENERATED_ON: Final = (
     datetime.now().strftime(

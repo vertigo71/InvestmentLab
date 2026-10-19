@@ -1,6 +1,8 @@
 from collections.abc import Iterator
 from math import floor
+from datetime import date
 
+from core.config import CASH_ANNUAL_RATE
 from core.models.portfolio import Portfolio
 from core.models.price_series import PriceSeries
 from core.models.simulation_step import SimulationStep
@@ -14,7 +16,8 @@ class StrategySimulator:
     def steps(
             series: PriceSeries,
             strategy: Strategy,
-            initial_capital: float
+            initial_capital: float,
+            cash_annual_rate: float = CASH_ANNUAL_RATE,
     ) -> Iterator[SimulationStep]:
         """
         Simulates a strategy period by
@@ -35,6 +38,11 @@ class StrategySimulator:
         :param initial_capital:
             Initial capital available at
             the start of the simulation.
+
+        :param cash_annual_rate:
+            Annual interest rate earned by
+            uninvested cash. Defaults to the
+            global CASH_ANNUAL_RATE.
 
         :return:
             One step per price point.
@@ -91,7 +99,26 @@ class StrategySimulator:
                 contribution_periods
         )
 
+        # Date of the previous period, used to
+        # compute the days of interest. None on
+        # the first period: no time has passed.
+        previous_date: date | None = None
+
         for point in prices:
+
+            # Interest earned by the cash that
+            # waited since the previous period.
+            # Collected before the strategy
+            # decides, so it can be invested.
+            interest = 0.0
+
+            if previous_date is not None:
+                interest = portfolio.earn_interest(
+                    annual_rate=cash_annual_rate,
+                    days=(point.date - previous_date).days
+                )
+
+            previous_date = point.date
 
             requested = 0.0
 
@@ -118,6 +145,7 @@ class StrategySimulator:
 
             yield SimulationStep(
                 point=point,
+                interest=interest,
                 contribution=(
                         cash_before -
                         portfolio.cash_remaining
@@ -134,7 +162,8 @@ class StrategySimulator:
     def run(
             series: PriceSeries,
             strategy: Strategy,
-            initial_capital: float
+            initial_capital: float,
+            cash_annual_rate: float = CASH_ANNUAL_RATE
     ) -> StrategyResult:
         """
         Simulates a strategy and returns
@@ -158,6 +187,11 @@ class StrategySimulator:
             Initial capital available at
             the start of the simulation.
 
+        :param cash_annual_rate:
+            Annual interest rate earned by
+            uninvested cash. Defaults to the
+            global CASH_ANNUAL_RATE.
+
         :return:
             Strategy result containing
             final portfolio metrics.
@@ -176,7 +210,8 @@ class StrategySimulator:
         for step in StrategySimulator.steps(
                 series=series,
                 strategy=strategy,
-                initial_capital=initial_capital
+                initial_capital=initial_capital,
+                cash_annual_rate=cash_annual_rate
         ):
             peak_value = max(
                 peak_value,

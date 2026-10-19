@@ -18,6 +18,11 @@ class SimulationStep:
     :param point:
         Market data for the period.
 
+    :param interest:
+        Interest earned by the uninvested
+        cash since the previous period,
+        before the purchase.
+
     :param contribution:
         Amount actually invested during
         the period.
@@ -34,6 +39,7 @@ class SimulationStep:
     """
 
     point: PricePoint
+    interest: float
     contribution: float
     shares_bought: float
     accumulated_shares: float

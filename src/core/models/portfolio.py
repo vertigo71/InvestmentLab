@@ -46,6 +46,49 @@ class Portfolio:
 
         return amount
 
+    def earn_interest(
+            self,
+            annual_rate: float,
+            days: int
+    ) -> float:
+        """
+        Adds the interest earned by the
+        uninvested cash over a number of
+        days.
+
+        The annual rate is compounded over
+        the actual elapsed time:
+
+            factor = (1 + annual_rate) ** (days / 365.25)
+
+        Args:
+            annual_rate:
+                Annual interest rate, e.g.
+                0.02 for 2%.
+
+            days:
+                Days elapsed since the
+                previous period.
+
+        Returns:
+            Interest earned, added to
+            cash_remaining.
+        """
+
+        factor = (
+                (1 + annual_rate) **
+                (days / 365.25)
+        )
+
+        interest = (
+                self.cash_remaining *
+                (factor - 1)
+        )
+
+        self.cash_remaining += interest
+
+        return interest
+
     def position_value(self,
                        current_price: float
                        ) -> float:
