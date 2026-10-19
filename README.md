@@ -163,6 +163,24 @@ Example with 100,000 and 157 weekly rows, `BIWEEKLY`:
 `floor(100000 / 156) = 641` per row, 2 rows between contributions,
 so 1,282 is proposed on rows 0, 2, 4...
 
+### Interest on cash
+
+Uninvested cash earns a fixed annual rate, `CASH_ANNUAL_RATE` in
+`core/config.py` (default `0.0`). At the start of each period, before
+the strategy decides, the cash grows by the actual days elapsed since
+the previous period:
+
+```
+factor = (1 + annual_rate) ** (days / 365.25)
+```
+
+Compounding over actual days gives exactly the annual rate after one
+year, with weekly or monthly data. There is no interest on the first
+period, since no time has passed. Interest left uninvested at the end
+of a window remains as cash and counts in `total_value`.
+
+`AllIn` is not affected: it has no cash after the first period.
+
 ### Results
 
 `StrategyResult` keeps the invested position and the cash separately:
@@ -293,7 +311,7 @@ python -m tools.shiller_converter
 
 | What                                           | Where                                   |
 |------------------------------------------------|-----------------------------------------|
-| Initial capital, input and output folders      | `core/config.py`                        |
+| Initial capital, cash interest, input/output   | `core/config.py`                        |
 | Rolling data source, date range, window length | `rolling/experiments/config.py`         |
 | Strategies to compare                          | `rolling/factories/strategy_factory.py` |
 | Trace ticker and date range                    | `tracing/experiments/config.py`         |
@@ -409,8 +427,11 @@ by tiny floating-point amounts, which breaks an exact comparison.
 
 ## Assumptions and limitations
 
-- **Cash earns 0%.** Uninvested cash is counted at face value, which
-  slightly favours lump sum over strategies that keep cash waiting.
+- **Cash earns a fixed rate.** `CASH_ANNUAL_RATE` is the same for the
+  whole history, while real short-term rates have ranged from near 0%
+  (1930s-1940s, 2010s) to over 10% (early 1980s). With the default of
+  0%, results slightly favour lump sum over strategies that keep cash
+  waiting.
 - **Decision and purchase use the same close.** A strategy sees a
   period's closing price and buys at that same price.
 - **Gross dividends, in the index currency.** Total return series
@@ -489,11 +510,11 @@ derivation of the formula, a worked example with the first months of
 
 ### Methodology
 
-- **Cash remuneration.** Apply an interest rate to uninvested cash,
-  first a fixed annual rate (default 0%), then a historical short-term
-  rate series (e.g. 3-month US Treasury bills) to approximate a money
-  market fund. Optionally report IRR (XIRR), which measures the return
-  of the money while invested.
+- **Historical cash rates.** Replace the fixed `CASH_ANNUAL_RATE` with
+  a historical short-term rate series (e.g. 3-month US Treasury bills)
+  to approximate a money market fund over time.
+- **Money-weighted return.** Report IRR (XIRR), which measures the
+  return of the money while invested.
 - **Execute at the next period's open.** Decide with the close of
   period `t` and buy at the `Open` of period `t + 1` (the first price
   available after the decision). Requires adding `open` to
