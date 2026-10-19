@@ -399,10 +399,9 @@ class RollingResultsAnalyzer:
         # defined for a single window.
         if len(results) < 2:
             raise ValueError(
-                f"Rolling analysis requires at least "
-                f"two windows, got {len(results)}. "
                 f"Widen the date range or reduce "
-                f"WINDOW_YEARS."
+                f"rolling.window_years in the "
+                f"experiment file."
             )
 
         return [

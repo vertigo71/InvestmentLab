@@ -2,7 +2,7 @@ from collections.abc import Iterator
 from math import floor
 from datetime import date
 
-from core.config import CASH_ANNUAL_RATE
+from core.settings import SETTINGS
 from core.models.portfolio import Portfolio
 from core.models.price_series import PriceSeries
 from core.models.simulation_step import SimulationStep
@@ -17,7 +17,7 @@ class StrategySimulator:
             series: PriceSeries,
             strategy: Strategy,
             initial_capital: float,
-            cash_annual_rate: float = CASH_ANNUAL_RATE,
+            cash_annual_rate: float = SETTINGS.cash_annual_rate
     ) -> Iterator[SimulationStep]:
         """
         Simulates a strategy period by
@@ -42,7 +42,7 @@ class StrategySimulator:
         :param cash_annual_rate:
             Annual interest rate earned by
             uninvested cash. Defaults to the
-            global CASH_ANNUAL_RATE.
+            global active experiment setting..
 
         :return:
             One step per price point.
@@ -163,7 +163,7 @@ class StrategySimulator:
             series: PriceSeries,
             strategy: Strategy,
             initial_capital: float,
-            cash_annual_rate: float = CASH_ANNUAL_RATE
+            cash_annual_rate: float = SETTINGS.cash_annual_rate
     ) -> StrategyResult:
         """
         Simulates a strategy and returns
@@ -190,7 +190,7 @@ class StrategySimulator:
         :param cash_annual_rate:
             Annual interest rate earned by
             uninvested cash. Defaults to the
-            global CASH_ANNUAL_RATE.
+            active experiment setting.
 
         :return:
             Strategy result containing

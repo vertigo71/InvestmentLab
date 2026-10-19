@@ -4,9 +4,10 @@ Strategy trace generation demo.
 
 from core.config import (
     GENERATED_ON,
-    INITIAL_CAPITAL,
     OUTPUT_FOLDER
 )
+from core.settings import SETTINGS
+
 from core.models.contribution_frequency import (
     ContributionFrequency
 )
@@ -83,8 +84,7 @@ def main():
         end_date=END_DATE,
         series=series,
         strategy=strategy,
-        initial_capital=
-        INITIAL_CAPITAL
+        initial_capital=SETTINGS.initial_capital
     )
 
     StrategyTraceCsvExporter.export(

@@ -1,0 +1,47 @@
+# ============================================================
+# S&P Composite nominal total return, monthly data from
+# Robert Shiller (converted with tools/shiller_converter.py).
+#
+# Available options: see config_help.txt
+# ============================================================
+
+# Capital available at the start of each window.
+initial_capital: 100000
+
+# Annual rate earned by uninvested cash.
+# 0.02 = 2%. 0.0 = cash earns nothing.
+cash_annual_rate: 0.0
+
+rolling:
+
+  # Length of each rolling window, in years.
+  window_years: 3
+
+  # Historical data range. The end date is excluded.
+  # Quoted, so YAML keeps them as text.
+  start_date: "1871-01-01"
+  end_date: "2026-01-01"
+
+  data_source:
+    type: csv
+    label: SHILLER
+    path: shiller_sp_tr_monthly.csv
+    frequency: MONTHLY
+
+  # Monthly data: only MONTHLY contributions are possible.
+  strategies:
+    - type: all_in
+
+    - type: dca
+      frequency: MONTHLY
+
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_MAX
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_AVG
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+

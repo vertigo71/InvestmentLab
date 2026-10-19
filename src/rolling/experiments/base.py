@@ -3,19 +3,10 @@ Shared functionality used by
 rolling-window experiments.
 """
 
-from core.config import INITIAL_CAPITAL
+from core.settings import SETTINGS
 
 from rolling.engines.rolling_backtest_engine import (
     RollingBacktestEngine
-)
-from rolling.experiments.config import (
-    DATA_SOURCE,
-    END_DATE,
-    START_DATE,
-    WINDOW_YEARS
-)
-from rolling.factories.strategy_factory import (
-    StrategyFactory
 )
 from rolling.models.rolling_window_result import (
     RollingWindowResult
@@ -34,8 +25,11 @@ class RollingBase:
 
         - Load historical data.
         - Create rolling windows.
-        - Create strategies.
         - Execute backtests.
+
+    Everything is taken from the active
+    experiment YAML file (see
+    configs/active_yaml.txt).
     """
 
     @staticmethod
@@ -44,34 +38,29 @@ class RollingBase:
         Executes the standard rolling-window
         analysis pipeline.
 
-        The data source (Yahoo, CSV...) is
-        chosen in the rolling config.
-
         :return:
             Rolling-window results for all
             configured strategies.
         """
 
-        series = DATA_SOURCE.load(
-            start_date=START_DATE,
-            end_date=END_DATE
+        rolling = SETTINGS.rolling
+
+        series = rolling.data_source.load(
+            start_date=rolling.start_date,
+            end_date=rolling.end_date
         )
 
         windows = (
             RollingWindowBuilder.create_windows(
                 series=series,
-                window_years=WINDOW_YEARS
+                window_years=rolling.window_years
             )
-        )
-
-        strategies = (
-            StrategyFactory.create()
         )
 
         return (
             RollingBacktestEngine.run(
                 windows=windows,
-                strategies=strategies,
-                initial_capital=INITIAL_CAPITAL
+                strategies=rolling.strategies,
+                initial_capital=SETTINGS.initial_capital
             )
         )

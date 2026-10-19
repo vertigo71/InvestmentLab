@@ -1,0 +1,56 @@
+# ============================================================
+# S&P 500 total return, weekly data from Yahoo Finance.
+#
+# Available options: see config_help.txt
+# ============================================================
+
+# Capital available at the start of each window.
+initial_capital: 100000
+
+# Annual rate earned by uninvested cash.
+# 0.02 = 2%. 0.0 = cash earns nothing.
+cash_annual_rate: 0.0
+
+rolling:
+
+  # Length of each rolling window, in years.
+  window_years: 3
+
+  # Historical data range. The end date is excluded.
+  # Quoted, so YAML keeps them as text.
+  start_date: "1990-01-01"
+  end_date: "2026-01-01"
+
+  data_source:
+    type: yahoo
+    ticker: "^SP500TR"
+    frequency: WEEKLY
+
+  strategies:
+    - type: all_in
+
+    - type: dca
+      frequency: BIWEEKLY
+
+    - type: dca
+      frequency: MONTHLY
+
+    - type: drawdown_dca
+      frequency: BIWEEKLY
+      reference_price: RUNNING_MAX
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_MAX
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    - type: drawdown_dca
+      frequency: BIWEEKLY
+      reference_price: RUNNING_AVG
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_AVG
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]

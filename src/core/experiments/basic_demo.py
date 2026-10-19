@@ -6,7 +6,7 @@ a simple strategy to validate that
 the application is working correctly.
 """
 
-from core.config import INITIAL_CAPITAL
+from core.settings import SETTINGS
 from core.engines.strategy_simulator import StrategySimulator
 from core.providers.yahoo_loader import YahooLoader
 from core.strategies.all_in import AllIn
@@ -27,7 +27,7 @@ def main():
     result = StrategySimulator.run(
         series=series,
         strategy=AllIn(),
-        initial_capital=INITIAL_CAPITAL
+        initial_capital=SETTINGS.initial_capital,
     )
 
     print()

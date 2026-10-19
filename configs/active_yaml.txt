@@ -1,0 +1,19 @@
+# ============================================================
+# Active experiment for InvestmentLab.
+#
+# Write the name of one experiment file in this folder,
+# without the .yaml extension, on a single line below.
+#
+#   Example: sp500_weekly  ->  configs/sp500_weekly.yaml
+#
+# Lines starting with # and empty lines are ignored.
+# Exactly one experiment name is allowed.
+#
+# Available options for the experiment files:
+# see config_help.txt
+# ============================================================
+
+# sp500_weekly
+shiller_monthly
+
+

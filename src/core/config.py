@@ -1,5 +1,11 @@
 """
 Global project configuration.
+
+Fixed project paths and the export date.
+Experiment settings (capital, cash interest,
+data source, strategies...) are defined in
+the YAML files of the configs folder and
+loaded by core/settings.py.
 """
 
 from datetime import datetime
@@ -24,17 +30,12 @@ OUTPUT_FOLDER: Final = (
         PROJECT_ROOT / "outputs"
 )
 
-# Default initial portfolio value.
-INITIAL_CAPITAL: Final = 100000
-
-# Annual interest rate earned by uninvested
-# cash, e.g. 0.02 for a money market fund
-# yielding 2% per year.
-#
-# Applied every period from the actual
-# elapsed days. 0.0 means cash earns
-# nothing.
-CASH_ANNUAL_RATE: Final = 0.0
+# Experiment configuration directory.
+# Contains one YAML file per experiment and
+# active_yaml.txt with the experiment to run.
+CONFIG_FOLDER: Final = (
+        PROJECT_ROOT / "configs"
+)
 
 # Current export date.
 GENERATED_ON: Final = (
