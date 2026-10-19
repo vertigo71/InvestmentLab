@@ -5,7 +5,7 @@ monthly nominal total return CSV.
 Download ie_data.xls from https://shillerdata.com/
 into the inputs folder and run from the src folder:
 
-    python -m tools.shiller_converter
+    python -m scripts.shiller_converter
 
 The output CSV has two columns, date and close,
 and can be read with CsvLoader:

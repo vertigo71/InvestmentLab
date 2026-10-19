@@ -264,7 +264,7 @@ InvestmentLab/
     │   ├── experiments/        Trace demo and configuration
     │   ├── exporters/
     │   └── models/
-    ├── tools/                  Utilities run by hand, not by the backtest
+    ├── scripts/                  Utilities run by hand, not by the backtest
     │   └── shiller_converter.py
     └── live/                   Reserved for future use
 ```
@@ -304,7 +304,7 @@ python -m rolling.experiments.analysis_export_demo # aggregate CSV
 python -m tracing.experiments.trace_demo
 
 # Convert Shiller data (after downloading ie_data.xls)
-python -m tools.shiller_converter
+python -m scripts.shiller_converter
 ```
 
 ### Configuration
@@ -461,7 +461,7 @@ such as 1929.
 2. From `src`, run the converter (requires `pip install xlrd`):
 
    ```bash
-   python -m tools.shiller_converter
+   python -m scripts.shiller_converter
    ```
 
 3. It writes `inputs/shiller_sp_tr_monthly.csv`, which is read with

@@ -54,7 +54,7 @@
 #   CSV file name, relative to the inputs folder.
 #   shiller_sp_tr_monthly.csv   Shiller S&P Composite total
 #                               return, monthly, 1871 -
-#                               (from tools/shiller_converter)
+#                               (from scripts/shiller_converter)
 #
 # frequency (required, cannot be inferred from the file):
 #   DAILY, WEEKLY, MONTHLY

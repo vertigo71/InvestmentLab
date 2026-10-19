@@ -13,22 +13,34 @@ from core.config import (
     GENERATED_ON,
     OUTPUT_FOLDER
 )
+from core.file_utils import next_free_path
 from core.settings import SETTINGS
 
-# Rolling results CSV export file.
-CSV_OUTPUT_FILE: Final = (
+# Output folder of the active experiment:
+# outputs/<experiment name>/, e.g.
+# outputs/sp500_weekly/. Created by the
+# exporters if it does not exist.
+EXPERIMENT_OUTPUT_FOLDER: Final = (
         OUTPUT_FOLDER /
-        f"{GENERATED_ON}_"
-        f"rolling_results_"
-        f"{SETTINGS.rolling.window_years}y_"
-        f"{SETTINGS.rolling.data_source.name}.csv"
+        SETTINGS.experiment
+)
+
+# Rolling results CSV export file.
+# Never overwrites a previous export: if the
+# file exists, (1), (2)... is added.
+CSV_OUTPUT_FILE: Final = next_free_path(
+    EXPERIMENT_OUTPUT_FOLDER /
+    f"{GENERATED_ON}_"
+    f"rolling_results_"
+    f"{SETTINGS.rolling.window_years}y.csv"
 )
 
 # Rolling analysis CSV export file.
-ANALYSIS_CSV_OUTPUT_FILE: Final = (
-        OUTPUT_FOLDER /
-        f"{GENERATED_ON}_"
-        f"rolling_analysis_"
-        f"{SETTINGS.rolling.window_years}y_"
-        f"{SETTINGS.rolling.data_source.name}.csv"
+# Never overwrites a previous export: if the
+# file exists, (1), (2)... is added.
+ANALYSIS_CSV_OUTPUT_FILE: Final = next_free_path(
+    EXPERIMENT_OUTPUT_FOLDER /
+    f"{GENERATED_ON}_"
+    f"rolling_analysis_"
+    f"{SETTINGS.rolling.window_years}y.csv"
 )

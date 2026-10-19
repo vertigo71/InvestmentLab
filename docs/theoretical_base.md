@@ -170,7 +170,7 @@ Shiller's `ie_data.xls` provides, for each month since January 1871:
 growth[t] = (P[t] + D[t] / 12) / P[t-1]
 ```
 
-In pandas, as in `tools/shiller_converter.py`:
+In pandas, as in `scripts/shiller_converter.py`:
 
 ```python
 growth = (data["price"] + data["dividend"] / 12) / data["price"].shift(1)

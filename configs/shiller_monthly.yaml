@@ -1,6 +1,6 @@
 # ============================================================
 # S&P Composite nominal total return, monthly data from
-# Robert Shiller (converted with tools/shiller_converter.py).
+# Robert Shiller (converted with scripts/shiller_converter.py).
 #
 # Available options: see config_help.txt
 # ============================================================
