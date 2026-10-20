@@ -2,7 +2,8 @@
 
 A Python backtesting framework to compare investment contribution
 strategies on historical market data: lump sum, classic Dollar Cost
-Averaging (DCA) and drawdown-based DCA.
+Averaging (DCA), drawdown-based DCA and fixed-allocation portfolios
+with periodic rebalancing (e.g. 70% shares, 30% money market).
 
 The main question it answers is:
 
@@ -47,6 +48,7 @@ CAGR, CAGR dispersion) and risk (maximum drawdown).
 | `AllIn`       | `ALL_IN`                                    | Invests all capital in the first period.                                                                             |
 | `DCA`         | `DCA_<FREQUENCY>`                           | Invests a fixed amount at a fixed frequency.                                                                         |
 | `DrawdownDCA` | `DDCA_<REF>_<FREQUENCY>_[BASE<x>_]<levels>` | Like DCA, but scales each contribution by a multiplier that depends on how far the price is below a reference price. |
+| `Rebalance`   | `REBALANCE_<weight>_<FREQUENCY>[_TOL<x>]`, `HOLD_<weight>` | Keeps a fixed fraction in shares and the rest in cash, buying or selling periodically to restore it.        |
 
 ### Data frequency and contribution frequency
 
@@ -67,9 +69,12 @@ the other, as the number of data rows between two contributions:
 | `WEEKLY`            | 5       | 1        | error     |
 | `BIWEEKLY`          | 10      | 2        | error     |
 | `MONTHLY`           | 21      | 4        | 1         |
+| `QUARTERLY`         | 63      | 13       | 3         |
+| `SEMIANNUAL`        | 126     | 26       | 6         |
+| `ANNUAL`            | 252     | 52       | 12        |
 
-`MONTHLY` with daily or weekly data is an approximation (21 trading
-days, 4 weeks). In the rolling analysis, strategies with an impossible
+With daily or weekly data the values are approximations (21 trading
+days or 4 weeks per month, 52 weeks per year). In the rolling analysis, strategies with an impossible
 combination are skipped with a warning on stderr, so the same
 strategy list can be used with any data source. Calling
 the simulator directly with an impossible combination raises a
@@ -123,6 +128,33 @@ Levels are validated on creation:
   negative thresholds are allowed;
 - multipliers and `base_multiplier` must be positive.
 
+### Rebalance
+
+A fixed fraction of the total value is kept in shares and the rest in
+cash, which earns `cash_annual_rate` (a money market fund). On the
+first period the target allocation is bought; on each review period
+the strategy proposes the trade that restores it:
+
+```
+total value   = shares × price + cash
+target shares = total value × equity_weight
+trade         = target shares − current shares value
+                (positive: buy, negative: sell)
+```
+
+```yaml
+- type: rebalance
+  equity_weight: 0.70        # 70/30
+  frequency: SEMIANNUAL
+  tolerance: 0.0             # optional
+```
+
+With a `tolerance`, the portfolio is rebalanced only when the share
+weight deviates more than that from the target, in weight points
+(`0.05` with `0.70`: below 65% or above 75%). A tolerance of `1.0` or
+more never rebalances after the initial allocation; the strategy is
+then named `HOLD_<weight>` and shows what rebalancing itself adds.
+
 ---
 
 ## Simulation model
@@ -143,8 +175,8 @@ time used to annualize returns.
 
 ### Contributions
 
-The simulator computes the contribution schedule; strategies only
-decide how much to invest.
+The simulator computes the contribution schedule and executes the
+trades; strategies only propose them.
 
 1. **Base contribution per data row:**
 
@@ -163,13 +195,21 @@ decide how much to invest.
    ```
 
 4. On contribution rows only, the simulator calls
-   `strategy.contribution(point, contribution_amount, cash_remaining)`:
+   `strategy.propose_trade(point, contribution_amount, portfolio)`,
+   which returns a signed amount of money: positive to buy, negative
+   to sell, zero to do nothing.
 
-   - `DCA` invests `contribution_amount`;
-   - `DrawdownDCA` invests `contribution_amount × multiplier`;
-   - `AllIn` invests all the cash on row 0 and nothing afterward.
+   - `DCA` proposes `contribution_amount`;
+   - `DrawdownDCA` proposes `contribution_amount × multiplier`;
+   - `AllIn` proposes all the cash on row 0 and nothing afterwards;
+   - `Rebalance` ignores `contribution_amount` and proposes the trade
+     that restores its target weight.
 
-A purchase can never exceed the remaining cash.
+The `portfolio` passed to strategies is a `PortfolioBase` copy: cash,
+shares and derived values, but no `buy()` or `sell()`. Strategies can
+read it but cannot trade by themselves or change the real portfolio;
+the simulator executes the proposed trade with `Portfolio`. A purchase
+never exceeds the cash, and a sale never exceeds the position value.
 
 Example with 100,000 and 157 weekly rows, `BIWEEKLY`:
 `floor(100000 / 156) = 641` per row, 2 rows between contributions,
@@ -191,7 +231,8 @@ year, with weekly or monthly data. There is no interest on the first
 period, since no time has passed. Interest left uninvested at the end
 of a window remains as cash and counts in `total_value`.
 
-`AllIn` is not affected: it has no cash after the first period.
+`AllIn` is not affected: it has no cash after the first period. For
+`Rebalance`, the interest is the return of its cash part.
 
 ### Results
 
@@ -240,7 +281,8 @@ InvestmentLab/
 │   ├── active_yaml.txt         Name of the experiment to run
 │   ├── config_help.txt         Reference of all available options
 │   ├── sp500_weekly.yaml
-│   └── shiller_monthly.yaml
+│   ├── shiller_monthly.yaml
+│   └── shiller_monthly_10y.yaml   10-year windows, incl. 70/30
 ├── docs/
 │   └── theoretical_base.md     Derivations and worked examples
 ├── inputs/                     Input data files (Shiller, CSV prices)
@@ -600,6 +642,17 @@ derivation of the formula, a worked example with the first months of
   the returns a euro-based investor would see.
 - **More risk metrics.** Time to recovery and capital deployment speed
   per strategy.
+- **DCA in cycles.** Deploy the capital with DCA or drawdown DCA over a
+  fixed period (e.g. 3 years) instead of the whole window. At the end of
+  the period, if the profit reaches a configurable target, move
+  everything to the money market and start a new cycle; otherwise keep
+  it invested until the target is reached. A further parameter would
+  avoid moving to cash after a market decline.
+- **Simulation context for strategies.** Replace `contribution_amount`
+  with a `SimulationContext` (initial capital, number of periods, data
+  frequency) created per window, so each strategy computes its own
+  amounts. Needed by DCA in cycles, whose deployment period differs
+  from the window length.
 
 ### Data
 
@@ -630,4 +683,3 @@ derivation of the formula, a worked example with the first months of
 - **Packaging** with a `pyproject.toml` and a pinned dependency list.
 - **`live` module.** Apply a chosen strategy to current market data to
   suggest this period's contribution.
-  

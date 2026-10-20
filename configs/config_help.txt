@@ -71,12 +71,14 @@
 #
 # type: dca
 #   Invests a fixed amount at a fixed frequency.
-#   frequency: WEEKLY, BIWEEKLY, MONTHLY
+#   frequency: WEEKLY, BIWEEKLY, MONTHLY,
+#              QUARTERLY, SEMIANNUAL, ANNUAL
 #
 # type: drawdown_dca
 #   Like dca, multiplying the amount when the price
 #   falls below a reference.
-#   frequency:        WEEKLY, BIWEEKLY, MONTHLY
+#   frequency: WEEKLY, BIWEEKLY, MONTHLY,
+#              QUARTERLY, SEMIANNUAL, ANNUAL
 #   reference_price:  RUNNING_MAX  (highest close so far)
 #                     RUNNING_AVG  (average close so far)
 #   levels:           [[threshold, multiplier], ...]
@@ -85,7 +87,26 @@
 #   base_multiplier:  (optional, default 1.0) applied when
 #                     no threshold is reached
 #
+#
+# type: rebalance
+#   Keeps a fixed fraction in shares and the rest in
+#   cash (money market, earning cash_annual_rate).
+#   The initial allocation is made in the first period;
+#   afterwards, shares are bought or sold to restore
+#   the target weight.
+#   equity_weight:    target share weight, (0, 1]
+#                     e.g. 0.70 for 70/30, 0.80 for 80/20
+#   frequency:        review period: MONTHLY, QUARTERLY,
+#                     SEMIANNUAL, ANNUAL (WEEKLY and
+#                     BIWEEKLY also possible)
+#   tolerance:        (optional, default 0.0) rebalance
+#                     only if the weight deviates more
+#                     than this, in weight points:
+#                     0.05 with 0.70 -> below 65% or
+#                     above 75%
+#                     1.0 never rebalances (buy and hold,
+#                     named HOLD_<weight>)
+#
 # Strategies whose frequency is not possible with the
 # data (e.g. BIWEEKLY with MONTHLY data) are skipped.
 #
-
