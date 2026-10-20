@@ -30,6 +30,7 @@ from core.providers.yahoo_source import YahooSource
 from core.strategies.all_in import AllIn
 from core.strategies.dca import DCA
 from core.strategies.drawdown_dca import DrawdownDCA
+from core.strategies.rebalance import Rebalance
 from core.strategies.strategy import Strategy
 
 # File naming the experiment to run.
@@ -506,11 +507,48 @@ def _parse_strategy(
                 f"{context}: {error}"
             ) from error
 
-    raise ValueError(
-        f"{context}.type: expected all_in, dca or "
-        f"drawdown_dca, got {strategy_type!r}"
-    )
+    if strategy_type == "rebalance":
+        _check_keys(
+            data,
+            required={
+                "type",
+                "equity_weight",
+                "frequency"
+            },
+            optional={"tolerance"},
+            context=context
+        )
 
+        # Rebalance validates the weight and the
+        # tolerance; its error is reported with
+        # the position in the file.
+        try:
+            return Rebalance(
+                equity_weight=_number(
+                    data["equity_weight"],
+                    f"{context}.equity_weight"
+                ),
+                frequency=_enum(
+                    ContributionFrequency,
+                    data["frequency"],
+                    f"{context}.frequency"
+                ),
+                tolerance=_number(
+                    data.get("tolerance", 0.0),
+                    f"{context}.tolerance"
+                )
+            )
+
+        except ValueError as error:
+            raise ValueError(
+                f"{context}: {error}"
+            ) from error
+
+    raise ValueError(
+        f"{context}.type: expected all_in, dca, "
+        f"drawdown_dca or rebalance, got "
+        f"{strategy_type!r}"
+    )
 
 # ============================================================
 # Field helpers

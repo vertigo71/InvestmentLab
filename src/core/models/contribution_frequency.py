@@ -20,6 +20,9 @@ class ContributionFrequency(Enum):
     WEEKLY = "WEEKLY"
     BIWEEKLY = "BIWEEKLY"
     MONTHLY = "MONTHLY"
+    QUARTERLY = "QUARTERLY"
+    SEMIANNUAL = "SEMIANNUAL"
+    ANNUAL = "ANNUAL"
 
     def supports(
             self,
@@ -85,9 +88,9 @@ class ContributionFrequency(Enum):
 # each data frequency. A missing entry means
 # the combination is not possible.
 #
-# Values for MONTHLY with daily or weekly
-# data are approximations (21 trading days,
-# 4 weeks).
+# Values for daily and weekly data are
+# approximations: 21 trading days per month,
+# 4 weeks per month, 52 weeks per year.
 _PERIODS: dict[
     DataFrequency,
     dict[ContributionFrequency, int]
@@ -96,13 +99,22 @@ _PERIODS: dict[
         ContributionFrequency.WEEKLY: 5,
         ContributionFrequency.BIWEEKLY: 10,
         ContributionFrequency.MONTHLY: 21,
+        ContributionFrequency.QUARTERLY: 63,
+        ContributionFrequency.SEMIANNUAL: 126,
+        ContributionFrequency.ANNUAL: 252,
     },
     DataFrequency.WEEKLY: {
         ContributionFrequency.WEEKLY: 1,
         ContributionFrequency.BIWEEKLY: 2,
         ContributionFrequency.MONTHLY: 4,
+        ContributionFrequency.QUARTERLY: 13,
+        ContributionFrequency.SEMIANNUAL: 26,
+        ContributionFrequency.ANNUAL: 52,
     },
     DataFrequency.MONTHLY: {
         ContributionFrequency.MONTHLY: 1,
+        ContributionFrequency.QUARTERLY: 3,
+        ContributionFrequency.SEMIANNUAL: 6,
+        ContributionFrequency.ANNUAL: 12,
     },
 }

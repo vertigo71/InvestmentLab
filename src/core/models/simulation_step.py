@@ -8,11 +8,11 @@ from dataclasses import dataclass
 from core.models.price_point import PricePoint
 
 
-@dataclass(frozen=True) # immutable objects
+@dataclass(frozen=True)  # immutable objects
 class SimulationStep:
     """
     Stores the outcome of one simulation
-    period, after the purchase has been
+    period, after the trade has been
     executed.
 
     :param point:
@@ -24,15 +24,21 @@ class SimulationStep:
         before the purchase.
 
     :param contribution:
-        Amount actually invested during
-        the period.
+        Amount actually traded during the
+        period, after the cash or position
+        limits:
+
+            positive  invested (shares bought)
+            negative  received (shares sold)
+            0.0       no trade
 
     :param shares_bought:
-        Shares purchased during the period.
+        Shares traded during the period:
+        positive when buying, negative when
+        selling.
 
     :param accumulated_shares:
-        Total shares owned after the
-        purchase.
+        Total shares owned after the trade.
 
     :param cash_remaining:
         Uninvested cash after the purchase.
@@ -58,7 +64,7 @@ class SimulationStep:
         )
 
     @property
-    def total_value(self) -> float: # property -> getter
+    def total_value(self) -> float:  # property -> getter
         """
         Invested position plus uninvested
         cash at the period close.
