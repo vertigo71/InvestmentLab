@@ -27,6 +27,8 @@ CAGR, CAGR dispersion) and risk (maximum drawdown).
 - Data frequency travels with the prices. Strategies that are not
   possible with the data (e.g. biweekly contributions on monthly data)
   are skipped with a warning.
+- Experiments defined in YAML files: data source, dates, window,
+  capital, cash interest and strategies, without editing Python code.
 - Pluggable strategies through a common `Strategy` interface.
 - Rolling-window backtests with aggregated return and risk analysis.
 - Detailed per-period execution traces, exportable to CSV, used to
@@ -68,8 +70,8 @@ the other, as the number of data rows between two contributions:
 
 `MONTHLY` with daily or weekly data is an approximation (21 trading
 days, 4 weeks). In the rolling analysis, strategies with an impossible
-combination are skipped with a warning on stderr, so the strategy
-factory does not need changes when switching data sources. Calling
+combination are skipped with a warning on stderr, so the same
+strategy list can be used with any data source. Calling
 the simulator directly with an impossible combination raises a
 `ValueError`.
 
@@ -102,6 +104,16 @@ DrawdownDCA(
     reference_price=ReferencePrice.RUNNING_MAX,
     base_multiplier=1.0
 )
+```
+
+In an experiment file, the same strategy is written as:
+
+```yaml
+- type: drawdown_dca
+  frequency: BIWEEKLY
+  reference_price: RUNNING_MAX
+  base_multiplier: 1.0          # optional
+  levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
 ```
 
 Levels are validated on creation:
@@ -165,8 +177,8 @@ so 1,282 is proposed on rows 0, 2, 4...
 
 ### Interest on cash
 
-Uninvested cash earns a fixed annual rate, `CASH_ANNUAL_RATE` in
-`core/config.py` (default `0.0`). At the start of each period, before
+Uninvested cash earns a fixed annual rate, `cash_annual_rate` in the
+experiment file (`0.0` means no interest). At the start of each period, before
 the strategy decides, the cash grows by the actual days elapsed since
 the previous period:
 
@@ -224,14 +236,21 @@ code used by the rolling analysis.
 
 ```
 InvestmentLab/
+├── configs/                    Experiment files (see Configuration)
+│   ├── active_yaml.txt         Name of the experiment to run
+│   ├── config_help.txt         Reference of all available options
+│   ├── sp500_weekly.yaml
+│   └── shiller_monthly.yaml
 ├── docs/
 │   └── theoretical_base.md     Derivations and worked examples
 ├── inputs/                     Input data files (Shiller, CSV prices)
-├── outputs/                    Generated CSV files
+├── outputs/                    Generated files, one folder per experiment
 └── src/
     ├── main.py
     ├── core/                   Simulation core, shared by all modules
-    │   ├── config.py           Project paths, initial capital, export date
+    │   ├── config.py           Project paths and export date
+    │   ├── settings.py         Loads and validates the active experiment
+    │   ├── file_utils.py       File helpers (non-overwriting file names)
     │   ├── engines/
     │   │   └── strategy_simulator.py
     │   ├── experiments/
@@ -246,17 +265,15 @@ InvestmentLab/
     │   │   ├── csv_source.py   CSV file data source
     │   │   ├── yahoo_loader.py Yahoo Finance download and validation
     │   │   ├── csv_loader.py   Generic date,close CSV loader
-    │   │   └── market_context_provider.py    
+    │   │   └── market_context_provider.py
     │   ├── strategies/         Strategy interface and implementations
     │   └── transformers/
     │       └── price_point_builder.py   Period indexes and running stats
     ├── rolling/                Rolling-window analysis
     │   ├── analysis/           Aggregate metrics
     │   ├── engines/            Runs all strategies on all windows
-    │   ├── experiments/        Runnable demos and configuration
+    │   ├── experiments/        Runnable demos and output file names
     │   ├── exporters/          CSV exports
-    │   ├── factories/
-    │   │   └── strategy_factory.py   Strategies to compare
     │   ├── models/
     │   └── transformers/       Rolling window creation
     ├── tracing/                Per-period execution traces
@@ -264,7 +281,8 @@ InvestmentLab/
     │   ├── experiments/        Trace demo and configuration
     │   ├── exporters/
     │   └── models/
-    ├── scripts/                  Utilities run by hand, not by the backtest
+    ├── scripts/                Standalone scripts run by hand, not
+    │   │                       imported by the backtest
     │   └── shiller_converter.py
     └── live/                   Reserved for future use
 ```
@@ -275,10 +293,11 @@ InvestmentLab/
 
 - Python 3.12 or later (developed with 3.13)
 - `yfinance` (also installs `pandas`)
+- `pyyaml`, to read the experiment files
 - `xlrd`, only to convert Shiller's `.xls` file
 
 ```bash
-pip install yfinance xlrd
+pip install -r requirements.txt
 ```
 
 ---
@@ -309,35 +328,76 @@ python -m scripts.shiller_converter
 
 ### Configuration
 
-| What                                           | Where                                   |
-|------------------------------------------------|-----------------------------------------|
-| Initial capital, cash interest, input/output   | `core/config.py`                        |
-| Rolling data source, date range, window length | `rolling/experiments/config.py`         |
-| Strategies to compare                          | `rolling/factories/strategy_factory.py` |
-| Trace ticker and date range                    | `tracing/experiments/config.py`         |
-| Traced strategy                                | `tracing/experiments/trace_demo.py`     |
+Each experiment is a YAML file in `configs/`. The one to run is named,
+without the `.yaml` extension, in `configs/active_yaml.txt`:
 
-The rolling analysis reads its prices from `DATA_SOURCE` in
-`rolling/experiments/config.py`. Each source holds everything that
-defines it, including the data frequency, and its `name` is used in
-the output file names:
-
-```python
-# Yahoo Finance, weekly by default
-DATA_SOURCE: Final[DataSource] = YahooSource(
-    ticker="^SP500TR"
-)
-
-# Local CSV (e.g. converted Shiller data)
-DATA_SOURCE: Final[DataSource] = CsvSource(
-    label="SHILLER",
-    path=INPUT_FOLDER / "shiller_sp_tr_monthly.csv",
-    frequency=DataFrequency.MONTHLY
-)
+```
+# Lines starting with # are ignored.
+sp500_weekly
 ```
 
-Keep exactly one of them uncommented. `YahooSource` also accepts
-`frequency` and `auto_adjust`.
+To switch experiments, change that name and run any demo again. To
+create a new one, copy an existing file and edit it. All available
+options are described in `configs/config_help.txt`.
+
+An experiment file defines:
+
+```yaml
+initial_capital: 100000
+cash_annual_rate: 0.0          # 0.02 = 2%
+
+rolling:
+  window_years: 3
+  start_date: "1990-01-01"
+  end_date: "2026-01-01"       # excluded
+
+  data_source:
+    type: yahoo                # or csv
+    ticker: "^SP500TR"
+    frequency: WEEKLY
+
+  strategies:
+    - type: all_in
+    - type: dca
+      frequency: MONTHLY
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_MAX
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+```
+
+A CSV source is written as:
+
+```yaml
+  data_source:
+    type: csv
+    label: SHILLER                      # used in messages and names
+    path: shiller_sp_tr_monthly.csv     # relative to inputs/
+    frequency: MONTHLY                  # required
+```
+
+`core/settings.py` reads the active experiment when the program starts
+and builds the data source and the strategies. Any error stops the
+program with the file and field to fix, for example:
+
+```
+sp500_weekly.yaml: rolling.strategies, strategy 2: missing frequency;
+unknown frequncy (allowed: frequency, type)
+```
+
+Unknown keys are reported too, so typos do not go unnoticed. Settings
+that are not part of an experiment stay in Python:
+
+| What                         | Where                               |
+|------------------------------|-------------------------------------|
+| Project paths, export date   | `core/config.py`                    |
+| Output file names            | `rolling/experiments/config.py`     |
+| Trace ticker and date range  | `tracing/experiments/config.py`     |
+| Traced strategy              | `tracing/experiments/trace_demo.py` |
+
+The trace demo takes the initial capital and the cash rate from the
+active experiment. Keep `cash_annual_rate: 0.0` when validating a
+trace against the spreadsheet, which does not compute interest.
 
 ### Data sources
 
@@ -354,12 +414,25 @@ Keep exactly one of them uncommented. `YahooSource` also accepts
 
 ### Outputs
 
-CSV files are written to `outputs/` at the project root, prefixed with
-the generation date:
+Rolling exports are written to `outputs/<experiment>/`, prefixed with
+the generation date and the window length. Each CSV gets a twin
+`.yaml` file with the exact experiment settings used, comments
+included, so every result can be traced back and reproduced:
 
 ```
-YYYYMMDD_rolling_results_5y_SP500TR.csv
-YYYYMMDD_rolling_analysis_5y_SP500TR.csv
+outputs/sp500_weekly/
+├── 20261020_rolling_analysis_3y.csv
+├── 20261020_rolling_analysis_3y.yaml
+├── 20261020_rolling_analysis_3y (1).csv
+└── 20261020_rolling_analysis_3y (1).yaml
+```
+
+Exports never overwrite previous files: if a name already exists,
+`(1)`, `(2)`... is added, like Windows copies.
+
+Traces are still written to the root of `outputs/`:
+
+```
 YYYYMMDD_tracing_3y_URTH_<strategy name>.csv
 ```
 
@@ -427,7 +500,7 @@ by tiny floating-point amounts, which breaks an exact comparison.
 
 ## Assumptions and limitations
 
-- **Cash earns a fixed rate.** `CASH_ANNUAL_RATE` is the same for the
+- **Cash earns a fixed rate.** `cash_annual_rate` is the same for the
   whole history, while real short-term rates have ranged from near 0%
   (1930s-1940s, 2010s) to over 10% (early 1980s). With the default of
   0%, results slightly favour lump sum over strategies that keep cash
@@ -444,7 +517,8 @@ by tiny floating-point amounts, which breaks an exact comparison.
   it is exact.
 - **Strategy names must be unique.** They are used as result keys; a
   duplicate silently overwrites another strategy's results.
-- **Ties in win count go to the first strategy** in factory order.
+- **Ties in win count go to the first strategy** in the order of the
+  experiment file.
 
 ---
 
@@ -510,7 +584,7 @@ derivation of the formula, a worked example with the first months of
 
 ### Methodology
 
-- **Historical cash rates.** Replace the fixed `CASH_ANNUAL_RATE` with
+- **Historical cash rates.** Replace the fixed `cash_annual_rate` with
   a historical short-term rate series (e.g. 3-month US Treasury bills)
   to approximate a money market fund over time.
 - **Money-weighted return.** Report IRR (XIRR), which measures the
@@ -551,6 +625,9 @@ derivation of the formula, a worked example with the first months of
   converter, plus a regression test against a stored trace.
 - **Trace columns for risk.** Add total value and portfolio drawdown
   to the trace, to validate the maximum drawdown in the spreadsheet.
+- **Tracing settings in YAML.** Move the trace ticker, dates and
+  strategy into the experiment files, as for the rolling analysis.
 - **Packaging** with a `pyproject.toml` and a pinned dependency list.
 - **`live` module.** Apply a chosen strategy to current market data to
   suggest this period's contribution.
+  
