@@ -15,6 +15,7 @@ field to fix.
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
+from pathlib import Path
 from typing import Any, Final, TypeVar
 
 import yaml
@@ -87,12 +88,48 @@ class Settings:
 
     :param rolling:
         Rolling-window analysis settings.
+
+    :param yaml_text:
+        Exact content of the YAML file, as read
+        when the settings were loaded.
+
     """
 
     experiment: str
     initial_capital: float
     cash_annual_rate: float
     rolling: RollingSettings
+    yaml_text: str
+
+    def save_copy(self, output_file: Path) -> Path:
+        """
+        Saves the experiment YAML next to an
+        exported file, with the same name and
+        a .yaml extension:
+
+            20261020_rolling_analysis_3y.csv
+            20261020_rolling_analysis_3y.yaml
+
+        The content written is the one read at
+        start-up, so it always matches the
+        settings actually used, even if the YAML
+        file was edited during the run.
+
+        :param output_file:
+            Exported file the copy belongs to.
+
+        :return:
+            Path of the saved copy.
+        """
+
+        copy_file = output_file.with_suffix(".yaml")
+
+        copy_file.write_text(
+            self.yaml_text,
+            encoding="utf-8"
+        )
+
+        return copy_file
 
 
 # ============================================================
@@ -162,8 +199,11 @@ def load_settings(experiment: str) -> Settings:
             f"{', '.join(available) or 'none'}"
         )
 
-    with path.open(encoding="utf-8") as file:
-        data = yaml.safe_load(file)
+    # Kept as text, so save_copy() can write
+    # exactly what was used.
+    yaml_text = path.read_text(encoding="utf-8")
+
+    data = yaml.safe_load(yaml_text)
 
     # Prefix of every error message, e.g.
     # "sp500_weekly.yaml: rolling.window_years".
@@ -209,7 +249,8 @@ def load_settings(experiment: str) -> Settings:
         rolling=_parse_rolling(
             data["rolling"],
             f"{context}: rolling"
-        )
+        ),
+        yaml_text=yaml_text
     )
 
 
