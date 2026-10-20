@@ -6,6 +6,7 @@ falls below a reference price.
 """
 
 from core.models.contribution_frequency import ContributionFrequency
+from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.models.reference_price import ReferencePrice
 from core.strategies.strategy import Strategy
@@ -136,14 +137,14 @@ class DrawdownDCA(Strategy):
 
         return self._frequency
 
-    def contribution(
+    def propose_trade(
             self,
             point: PricePoint,
             contribution_amount: float,
-            cash_remaining: float
+            portfolio: PortfolioBase
     ) -> float:
         """
-        Scales the proposed amount by the
+        Proposes the base amount scaled by the
         multiplier of the deepest drawdown
         level reached.
         """
@@ -177,7 +178,7 @@ class DrawdownDCA(Strategy):
         # than available.
         return min(
             contribution_amount * multiplier,
-            cash_remaining
+            portfolio.cash_remaining
         )
 
     def name(self) -> str:

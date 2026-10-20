@@ -167,7 +167,7 @@ decide how much to invest.
 
    - `DCA` invests `contribution_amount`;
    - `DrawdownDCA` invests `contribution_amount × multiplier`;
-   - `AllIn` invests all the cash on row 0 and nothing afterwards.
+   - `AllIn` invests all the cash on row 0 and nothing afterward.
 
 A purchase can never exceed the remaining cash.
 

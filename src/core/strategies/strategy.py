@@ -18,7 +18,9 @@ from abc import ABC
 from abc import abstractmethod
 
 from core.models.contribution_frequency import ContributionFrequency
+from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
+
 
 class Strategy(ABC):
     """
@@ -39,15 +41,16 @@ class Strategy(ABC):
         return None
 
     @abstractmethod
-    def contribution(
+    def propose_trade(
             self,
             point: PricePoint,
             contribution_amount: float,
-            cash_remaining: float
+            portfolio: PortfolioBase
     ) -> float:
         """
-        Calculates how much money should
-        be invested.
+        Proposes the trade of the current period.
+        The simulator executes it, within the
+        available cash or position.
 
         Only called on contribution periods,
         according to the strategy frequency.
@@ -66,12 +69,16 @@ class Strategy(ABC):
             Strategies may invest this amount,
             scale it, or ignore it entirely.
 
-        :param cash_remaining:
-            Available uninvested capital.
+        :param portfolio:
+            Snapshot of the portfolio before the
+            trade: cash and shares. Read-only.
 
         :return:
-            Amount to invest during
-            the current period.
+            Amount of money to trade:
+
+                positive  buy shares
+                negative  sell shares
+                0.0       do nothing
         """
 
         pass

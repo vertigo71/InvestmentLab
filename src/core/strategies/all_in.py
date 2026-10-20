@@ -4,28 +4,31 @@ All-In strategy.
 Invests all available capital
 on the first period.
 """
+
+from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.strategies.strategy import Strategy
 
 
 class AllIn(Strategy):
 
-    def contribution(
+    def propose_trade(
             self,
             point: PricePoint,
             contribution_amount: float,
-            cash_remaining: float
+            portfolio: PortfolioBase
     ) -> float:
         """
-        Invests all available capital
-        during the first period.
+        Proposes the trade of the current period.
+        The simulator executes it, within the
+        available cash or position.
 
         The proposed contribution amount
         is ignored.
         """
 
         if point.period_index == 0:
-            return cash_remaining
+            return portfolio.cash_remaining
 
         # No additional purchases afterward.
         return 0.0

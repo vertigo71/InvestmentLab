@@ -3,6 +3,7 @@ Traditional Dollar Cost Averaging strategy.
 """
 
 from core.models.contribution_frequency import ContributionFrequency
+from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.strategies.strategy import Strategy
 
@@ -38,14 +39,14 @@ class DCA(Strategy):
 
         return self._frequency
 
-    def contribution(
+    def propose_trade(
             self,
             point: PricePoint,
             contribution_amount: float,
-            cash_remaining: float
+            portfolio: PortfolioBase
     ) -> float:
         """
-        Invests the proposed amount on
+        Proposes investing the base amount on
         every contribution period.
         """
 
@@ -53,7 +54,7 @@ class DCA(Strategy):
         # than available.
         return min(
             contribution_amount,
-            cash_remaining
+            portfolio.cash_remaining
         )
 
     def name(self) -> str:

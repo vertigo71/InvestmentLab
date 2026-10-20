@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from math import floor
 from datetime import date
 
+from core.models.portfolio import PortfolioBase
 from core.settings import SETTINGS
 from core.models.portfolio import Portfolio
 from core.models.price_series import PriceSeries
@@ -42,7 +43,7 @@ class StrategySimulator:
         :param cash_annual_rate:
             Annual interest rate earned by
             uninvested cash. Defaults to the
-            global active experiment setting..
+            global active experiment setting.
 
         :return:
             One step per price point.
@@ -120,7 +121,7 @@ class StrategySimulator:
 
             previous_date = point.date
 
-            requested = 0.0
+            proposed = 0.0
 
             # Only contribution periods are
             # passed to the strategy.
@@ -129,19 +130,31 @@ class StrategySimulator:
                     contribution_periods
                     == 0
             ):
-                requested = strategy.contribution(
+                proposed = strategy.propose_trade(
                     point=point,
                     contribution_amount=contribution_amount,
-                    cash_remaining=portfolio.cash_remaining
+                    portfolio=PortfolioBase(
+                        cash_remaining=portfolio.cash_remaining,
+                        shares=portfolio.shares
+                    )
                 )
 
             shares_before = portfolio.shares
             cash_before = portfolio.cash_remaining
 
-            portfolio.buy(
-                requested,
-                point.close
-            )
+            # The strategy proposes, the simulator
+            # executes, within the available cash
+            # (buy) or position (sell).
+            if proposed > 0:
+                portfolio.buy(
+                    proposed,
+                    point.close
+                )
+            elif proposed < 0:
+                portfolio.sell(
+                    -proposed,
+                    point.close
+                )
 
             yield SimulationStep(
                 point=point,
