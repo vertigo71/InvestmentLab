@@ -1,8 +1,8 @@
 from collections.abc import Iterator
-from math import floor
 from datetime import date
 
 from core.models.portfolio import PortfolioBase
+from core.models.simulation_context import SimulationContext
 from core.settings import SETTINGS
 from core.models.portfolio import Portfolio
 from core.models.price_series import PriceSeries
@@ -65,20 +65,6 @@ class StrategySimulator:
             cash_remaining=initial_capital
         )
 
-        # Base contribution per data period.
-        #
-        # Subtract one period to avoid
-        # allocating more capital than
-        # available due to rounding.
-        investment_periods = (
-                len(prices) - 1
-        )
-
-        period_contribution = floor(
-            initial_capital /
-            investment_periods
-        )
-
         # Data rows between two contributions.
         # Fails here if the strategy frequency
         # is not possible with this data, e.g.
@@ -93,11 +79,14 @@ class StrategySimulator:
             else 1
         )
 
-        # Amount proposed on each
-        # contribution period.
-        contribution_amount = (
-                period_contribution *
-                contribution_periods
+        # Fixed data of this window, shared by
+        # all the calls to the strategy. Each
+        # strategy computes its own amounts
+        # from it.
+        context = SimulationContext(
+            initial_capital=initial_capital,
+            window_rows=len(prices),
+            data_frequency=series.frequency
         )
 
         # Date of the previous period, used to
@@ -132,7 +121,7 @@ class StrategySimulator:
             ):
                 proposed = strategy.propose_trade(
                     point=point,
-                    contribution_amount=contribution_amount,
+                    context=context,
                     portfolio=PortfolioBase(
                         cash_remaining=portfolio.cash_remaining,
                         shares=portfolio.shares

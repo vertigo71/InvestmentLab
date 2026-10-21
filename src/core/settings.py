@@ -448,17 +448,30 @@ def _parse_strategy(
         _check_keys(
             data,
             required={"type", "frequency"},
-            optional=set(),
+            optional={"deploy_years"},
             context=context
         )
 
-        return DCA(
-            frequency=_enum(
-                ContributionFrequency,
-                data["frequency"],
-                f"{context}.frequency"
+        # DCA validates deploy_years; its error
+        # is reported with the position in the
+        # file.
+        try:
+            return DCA(
+                frequency=_enum(
+                    ContributionFrequency,
+                    data["frequency"],
+                    f"{context}.frequency"
+                ),
+                deploy_years=_deploy_years(
+                    data,
+                    context
+                )
             )
-        )
+
+        except ValueError as error:
+            raise ValueError(
+                f"{context}: {error}"
+            ) from error
 
     if strategy_type == "drawdown_dca":
         _check_keys(
@@ -469,7 +482,7 @@ def _parse_strategy(
                 "reference_price",
                 "levels"
             },
-            optional={"base_multiplier"},
+            optional={"base_multiplier", "deploy_years"},
             context=context
         )
 
@@ -499,7 +512,11 @@ def _parse_strategy(
                     data["reference_price"],
                     f"{context}.reference_price"
                 ),
-                base_multiplier=base_multiplier
+                base_multiplier=base_multiplier,
+                deploy_years=_deploy_years(
+                    data,
+                    context
+                )
             )
 
         except ValueError as error:
@@ -549,6 +566,7 @@ def _parse_strategy(
         f"drawdown_dca or rebalance, got "
         f"{strategy_type!r}"
     )
+
 
 # ============================================================
 # Field helpers
@@ -721,6 +739,21 @@ def _levels(
         ))
 
     return levels
+
+
+def _deploy_years(data: dict, context: str) -> float | None:
+    """
+    Reads the optional deploy_years field of a
+    strategy. None when it is not present.
+    """
+
+    if "deploy_years" not in data:
+        return None
+
+    return _number(
+        data["deploy_years"],
+        f"{context}.deploy_years"
+    )
 
 
 # ============================================================

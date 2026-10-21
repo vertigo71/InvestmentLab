@@ -7,6 +7,7 @@ on the first period.
 
 from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
+from core.models.simulation_context import SimulationContext
 from core.strategies.strategy import Strategy
 
 
@@ -15,7 +16,7 @@ class AllIn(Strategy):
     def propose_trade(
             self,
             point: PricePoint,
-            contribution_amount: float,
+            context: SimulationContext,
             portfolio: PortfolioBase
     ) -> float:
         """
@@ -23,8 +24,8 @@ class AllIn(Strategy):
         The simulator executes it, within the
         available cash or position.
 
-        The proposed contribution amount
-        is ignored.
+        The simulation context is not
+        used: the whole cash is invested.
         """
 
         if point.period_index == 0:

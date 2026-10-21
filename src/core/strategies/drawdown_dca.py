@@ -9,6 +9,7 @@ from core.models.contribution_frequency import ContributionFrequency
 from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.models.reference_price import ReferencePrice
+from core.models.simulation_context import SimulationContext
 from core.strategies.strategy import Strategy
 
 
@@ -19,7 +20,8 @@ class DrawdownDCA(Strategy):
             levels: list[tuple[float, float]],
             frequency: ContributionFrequency,
             reference_price: ReferencePrice,
-            base_multiplier: float = 1.0
+            base_multiplier: float = 1.0,
+            deploy_years: float | None = None
     ):
         """
         Creates a drawdown-based DCA strategy.
@@ -74,6 +76,13 @@ class DrawdownDCA(Strategy):
             periods where the price is
             above the average.
 
+        :param deploy_years:
+            Years over which the capital is
+            invested at the base pace, then held.
+            None spreads it over the whole window.
+            Drawdown multipliers invest faster, so
+            the capital may run out earlier.
+
         :raises ValueError:
             If the levels or the base
             multiplier are not valid.
@@ -124,10 +133,17 @@ class DrawdownDCA(Strategy):
                 f"{base_multiplier}"
             )
 
+        if deploy_years is not None and deploy_years <= 0:
+            raise ValueError(
+                f"Deploy years must be positive, "
+                f"got {deploy_years}"
+            )
+
         self.levels = levels
         self._frequency = frequency
         self.reference_price = reference_price
         self.base_multiplier = base_multiplier
+        self.deploy_years = deploy_years
 
     @property
     def frequency(self) -> ContributionFrequency:
@@ -140,7 +156,7 @@ class DrawdownDCA(Strategy):
     def propose_trade(
             self,
             point: PricePoint,
-            contribution_amount: float,
+            context: SimulationContext,
             portfolio: PortfolioBase
     ) -> float:
         """
@@ -174,10 +190,15 @@ class DrawdownDCA(Strategy):
             if drawdown >= threshold:
                 multiplier = value
 
+        amount = context.base_contribution(
+            frequency=self.frequency,
+            deploy_years=self.deploy_years
+        )
+
         # Never invest more cash
         # than available.
         return min(
-            contribution_amount * multiplier,
+            amount * multiplier,
             portfolio.cash_remaining
         )
 
@@ -208,10 +229,19 @@ class DrawdownDCA(Strategy):
             else ""
         )
 
+        # Only shown when set, so existing
+        # strategy names remain unchanged.
+        deploy = (
+            f"{self.deploy_years:g}Y_"
+            if self.deploy_years is not None
+            else ""
+        )
+
         return (
             f"DDCA_"
             f"{reference}_"
             f"{self.frequency.name}_"
+            f"{deploy}"
             f"{base}"
             f"{levels}"
         )

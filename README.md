@@ -43,12 +43,12 @@ CAGR, CAGR dispersion) and risk (maximum drawdown).
 
 ## Strategies
 
-| Strategy      | Name pattern                                | Behaviour                                                                                                            |
-|---------------|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
-| `AllIn`       | `ALL_IN`                                    | Invests all capital in the first period.                                                                             |
-| `DCA`         | `DCA_<FREQUENCY>`                           | Invests a fixed amount at a fixed frequency.                                                                         |
-| `DrawdownDCA` | `DDCA_<REF>_<FREQUENCY>_[BASE<x>_]<levels>` | Like DCA, but scales each contribution by a multiplier that depends on how far the price is below a reference price. |
-| `Rebalance`   | `REBALANCE_<weight>_<FREQUENCY>[_TOL<x>]`, `HOLD_<weight>` | Keeps a fixed fraction in shares and the rest in cash, buying or selling periodically to restore it.        |
+| Strategy      | Name pattern                                               | Behaviour                                                                                                            |
+|---------------|------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| `AllIn`       | `ALL_IN`                                                   | Invests all capital in the first period.                                                                             |
+| `DCA`         | `DCA_<FREQUENCY>`                                          | Invests a fixed amount at a fixed frequency.                                                                         |
+| `DrawdownDCA` | `DDCA_<REF>_<FREQUENCY>_[BASE<x>_]<levels>`                | Like DCA, but scales each contribution by a multiplier that depends on how far the price is below a reference price. |
+| `Rebalance`   | `REBALANCE_<weight>_<FREQUENCY>[_TOL<x>]`, `HOLD_<weight>` | Keeps a fixed fraction in shares and the rest in cash, buying or selling periodically to restore it.                 |
 
 ### Data frequency and contribution frequency
 

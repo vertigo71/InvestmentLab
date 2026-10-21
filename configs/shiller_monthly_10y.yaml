@@ -32,14 +32,18 @@ rolling:
     # Everything invested in the first month.
     - type: all_in
 
-    # Spread over the whole 10-year window.
+    # Capital invested over 3 years, then held.
     - type: dca
       frequency: MONTHLY
+      deploy_years: 3
 
+    # Same 3-year pace, investing more after
+    # declines: may finish before 3 years.
     - type: drawdown_dca
       frequency: MONTHLY
       reference_price: RUNNING_MAX
-      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+      deploy_years: 3
+      levels: [ [ 0.10, 2 ], [ 0.20, 3 ], [ 0.30, 4 ], [ 0.40, 5 ] ]
 
     # 70% in shares, 30% in money market,
     # rebalanced every 6 months.
@@ -54,3 +58,8 @@ rolling:
       frequency: SEMIANNUAL
       tolerance: 1.0
 
+# For validation
+# Average CAGR	9,25 %	6,67 %	7,34 %	5,88 %	7,64 %
+# Worst CAGR	-1,89 %	-2,69 %	-0,43 %	-1,28 %	-0,58 %
+# Worst Max Drawdown	81,76 %	80,66 %	66,74 %	74,19 %	73,84 %
+# Average Rank	1,48	3,10	3,06	4,41	2,96

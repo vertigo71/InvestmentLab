@@ -12,6 +12,7 @@ to restore that fraction.
 from core.models.contribution_frequency import ContributionFrequency
 from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
+from core.models.simulation_context import SimulationContext
 from core.strategies.strategy import Strategy
 
 
@@ -77,15 +78,16 @@ class Rebalance(Strategy):
     def propose_trade(
             self,
             point: PricePoint,
-            contribution_amount: float,
+            context: SimulationContext,
             portfolio: PortfolioBase
     ) -> float:
         """
         Proposes the trade that brings the share
         weight back to the target.
 
-        The proposed contribution amount is
-        ignored.
+        The simulation context is not used:
+        the trade depends only on the current
+        portfolio and the target weight.
         """
 
         price = point.close

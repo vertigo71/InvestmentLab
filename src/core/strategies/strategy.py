@@ -20,6 +20,7 @@ from abc import abstractmethod
 from core.models.contribution_frequency import ContributionFrequency
 from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
+from core.models.simulation_context import SimulationContext
 
 
 class Strategy(ABC):
@@ -44,7 +45,7 @@ class Strategy(ABC):
     def propose_trade(
             self,
             point: PricePoint,
-            contribution_amount: float,
+            context: SimulationContext,
             portfolio: PortfolioBase
     ) -> float:
         """
@@ -61,17 +62,18 @@ class Strategy(ABC):
             close price and running
             statistics.
 
-        :param contribution_amount:
-            Base amount proposed by the engine
-            for this contribution, already
-            scaled to the strategy frequency.
-
-            Strategies may invest this amount,
-            scale it, or ignore it entirely.
+        :param context:
+            Fixed data of the simulation window:
+            initial capital, number of data rows
+            and data frequency. Strategies that
+            spread the capital over time use
+            context.base_contribution() to compute
+            their amounts.
 
         :param portfolio:
-            Snapshot of the portfolio before the
-            trade: cash and shares. Read-only.
+            Copy of the portfolio before the
+            trade: cash and shares. It has no
+            buy() or sell().
 
         :return:
             Amount of money to trade:
