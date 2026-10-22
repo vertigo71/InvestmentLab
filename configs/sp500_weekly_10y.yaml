@@ -1,0 +1,59 @@
+# ============================================================
+# Long-term comparison on S&P 500 total return, weekly
+# data from Yahoo Finance: lump sum, 3-year DCA and
+# 70/30 portfolios over 10-year windows.
+#
+# Available options: see config_help.txt
+# ============================================================
+
+# Capital available at the start of each window.
+initial_capital: 100000
+
+# Annual rate earned by uninvested cash: here, the
+# money market part of the 70/30 portfolios.
+# 0.02 = 2%.
+cash_annual_rate: 0.02
+
+rolling:
+
+  # 10 years: the investment horizon to evaluate.
+  window_years: 10
+
+  # Minimum annual growth wanted. 0.05 = 5%.
+  target_annual_return: 0.05
+
+  start_date: "1990-01-01"
+  end_date: "2026-01-01"
+
+  data_source:
+    type: yahoo
+    ticker: "^SP500TR"
+    frequency: WEEKLY
+
+  strategies:
+    # Everything invested in the first week.
+    - type: all_in
+
+    # Capital invested over 3 years, then held.
+    - type: dca
+      frequency: MONTHLY
+      deploy_years: 3
+
+    - type: drawdown_dca
+      frequency: MONTHLY
+      reference_price: RUNNING_MAX
+      deploy_years: 3
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    # 70% in shares, 30% in money market,
+    # rebalanced every 6 months.
+    - type: rebalance
+      equity_weight: 0.70
+      frequency: SEMIANNUAL
+
+    # Same 70/30 start, never rebalanced.
+    - type: rebalance
+      equity_weight: 0.70
+      frequency: SEMIANNUAL
+      tolerance: 1.0
+
