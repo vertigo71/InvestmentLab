@@ -35,7 +35,9 @@ def main():
     # rolling analysis metrics.
     analysis = (
         RollingResultsAnalyzer.build_analysis(
-            results
+            results,
+            target_annual_return=
+            SETTINGS.rolling.target_annual_return
         )
     )
 

@@ -19,6 +19,12 @@ rolling:
   # 10 years: the investment horizon to evaluate.
   window_years: 10
 
+  # Minimum annual growth wanted. Adds target
+  # metrics to the analysis: success rate,
+  # average shortfall and worst ratios.
+  # 0.05 = 5% per year. Optional.
+  target_annual_return: 0.05
+
   start_date: "1871-01-01"
   end_date: "2026-01-01"
 

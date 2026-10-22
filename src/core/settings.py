@@ -63,6 +63,12 @@ class RollingSettings:
 
     :param strategies:
         Strategies to compare.
+
+    :param target_annual_return:
+        Minimum annual growth wanted, e.g. 0.05
+        for 5%. None when not set: target
+        metrics are not computed.
+
     """
 
     window_years: int
@@ -70,6 +76,7 @@ class RollingSettings:
     end_date: str
     data_source: DataSource
     strategies: list[Strategy]
+    target_annual_return: float | None
 
 
 @dataclass(frozen=True)
@@ -278,10 +285,9 @@ def _parse_rolling(
             "data_source",
             "strategies"
         },
-        optional=set(),
+        optional={"target_annual_return"},
         context=context
     )
-
     window_years = data["window_years"]
 
     if (
@@ -319,6 +325,24 @@ def _parse_rolling(
             f"non-empty list"
         )
 
+    target_annual_return = None
+
+    if "target_annual_return" in data:
+        target_annual_return = _number(
+            data["target_annual_return"],
+            f"{context}.target_annual_return"
+        )
+
+        # Negative targets are allowed (e.g. -0.02:
+        # lose at most 2% per year), but not a loss
+        # of 100% or more.
+        if target_annual_return <= -1:
+            raise ValueError(
+                f"{context}.target_annual_return: "
+                f"must be greater than -1, got "
+                f"{target_annual_return}"
+            )
+
     return RollingSettings(
         window_years=window_years,
         start_date=start_date,
@@ -337,7 +361,8 @@ def _parse_rolling(
                 strategies_data,
                 start=1
             )
-        ]
+        ],
+        target_annual_return=target_annual_return,
     )
 
 

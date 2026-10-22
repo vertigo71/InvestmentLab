@@ -1,7 +1,7 @@
 """
 Aggregated rolling strategy analysis.
 """
-
+from core.settings import SETTINGS
 from rolling.analysis.rolling_results_analyzer import (
     RollingResultsAnalyzer
 )
@@ -23,7 +23,9 @@ def main():
 
     analysis = (
         RollingResultsAnalyzer.build_analysis(
-            results
+            results,
+            target_annual_return=
+            SETTINGS.rolling.target_annual_return
         )
     )
 

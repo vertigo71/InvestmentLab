@@ -17,6 +17,12 @@ rolling:
   # Length of each rolling window, in years.
   window_years: 3
 
+  # Minimum annual growth wanted. Adds target
+  # metrics to the analysis: success rate,
+  # average shortfall and worst ratios.
+  # 0.05 = 5% per year. Optional.
+  target_annual_return: 0.05
+
   # Historical data range. The end date is excluded.
   # Quoted, so YAML keeps them as text.
   start_date: "1871-01-01"

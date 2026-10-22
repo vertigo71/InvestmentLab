@@ -89,3 +89,41 @@ class StrategyResult:
         return (
                 self.total_value / self.initial_capital
         ) ** (1 / self.years) - 1
+
+    def target_ratio(
+            self,
+            target_annual_return: float
+    ) -> float:
+        """
+        Returns the final total value relative to
+        a minimum target growth over the elapsed
+        simulation time.
+
+            target = initial_capital
+                     * (1 + target_annual_return) ** years
+
+            ratio  = total_value / target
+
+        Example with 100,000, a 5% target and
+        10 years: the target is 162,889. A final
+        value of 179,178 gives 1.10 (10% above
+        the target); 114,022 gives 0.70 (70% of
+        the target).
+
+        A ratio of at least 1.0 is equivalent to
+        a CAGR of at least the target return.
+
+        :param target_annual_return:
+            Minimum annual growth wanted, e.g.
+            0.05 for 5%.
+
+        :return:
+            Final value divided by the target.
+        """
+
+        target = (
+                self.initial_capital *
+                (1 + target_annual_return) ** self.years
+        )
+
+        return self.total_value / target

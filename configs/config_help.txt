@@ -13,6 +13,17 @@
 #     window_years      length of each window, in years
 #     start_date        "YYYY-MM-DD", quoted
 #     end_date          "YYYY-MM-DD", quoted, excluded
+#     target_annual_return
+#                       (optional) minimum annual growth
+#                       wanted, e.g. 0.05 for 5%. Adds to
+#                       the analysis, for each strategy:
+#                         - success rate: windows that
+#                           reach the target
+#                         - average shortfall when failing
+#                         - worst final value / target
+#                         - average of the worst 10%
+#                       Negative values are allowed, e.g.
+#                       -0.02: lose at most 2% per year.
 #     data_source:      where prices come from (see below)
 #     strategies:       list of strategies (see below)
 #

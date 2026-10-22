@@ -1,7 +1,7 @@
 """
 Aggregates rolling window backtest results.
 """
-
+from math import ceil
 from statistics import stdev
 
 from core.models.strategy_result import StrategyResult
@@ -156,6 +156,24 @@ class RollingResultsAnalyzer:
         return RollingResultsAnalyzer._group_by_strategy(
             results,
             lambda strategy_result: strategy_result.max_drawdown
+        )
+
+    @staticmethod
+    def _get_strategy_target_ratios(
+            results: list[RollingWindowResult],
+            target_annual_return: float
+    ) -> dict[str, list[float]]:
+        """
+        Returns all final-value-to-target ratios
+        grouped by strategy.
+        """
+
+        return RollingResultsAnalyzer._group_by_strategy(
+            results,
+            lambda strategy_result:
+            strategy_result.target_ratio(
+                target_annual_return
+            )
         )
 
     @staticmethod
@@ -371,8 +389,138 @@ class RollingResultsAnalyzer:
         }
 
     @staticmethod
+    def get_target_success_rate(
+            results: list[RollingWindowResult],
+            target_annual_return: float
+    ) -> dict[str, float]:
+        """
+        Returns the fraction of windows in which
+        each strategy reaches the target.
+        """
+        # {
+        #     "ALL_IN": [1.02, 0.81, ...]],
+        #     "DCA_BIWEEKLY": [1.03, 0.95, ...]],
+        # }
+        ratios: dict[str, list[float]] = (
+            RollingResultsAnalyzer._get_strategy_target_ratios(
+                results,
+                target_annual_return
+            )
+        )
+
+        return {
+            strategy_name:
+                sum(1 for ratio in values if ratio >= 1.0) /
+                len(values)
+            for strategy_name, values
+            in ratios.items()
+        }
+
+    @staticmethod
+    def get_average_shortfall(
+            results: list[RollingWindowResult],
+            target_annual_return: float
+    ) -> dict[str, float]:
+        """
+        Returns, for each strategy, how far below
+        the target it ends on average in the
+        windows where it fails.
+
+        0.20 means ending, on average, with 80% of
+        the target. 0.0 if the target is always
+        reached.
+        """
+
+        ratios: dict[str, list[float]] = (
+            RollingResultsAnalyzer._get_strategy_target_ratios(
+                results,
+                target_annual_return
+            )
+        )
+
+        shortfalls: dict[str, float] = {}
+
+        for strategy_name, values in ratios.items():
+            failures = [
+                1.0 - ratio
+                for ratio in values
+                if ratio < 1.0
+            ]
+
+            shortfalls[strategy_name] = (
+                sum(failures) / len(failures)
+                if failures
+                else 0.0
+            )
+
+        return shortfalls
+
+    @staticmethod
+    def get_worst_target_ratio(
+            results: list[RollingWindowResult],
+            target_annual_return: float
+    ) -> dict[str, float]:
+        """
+        Returns the lowest final-value-to-target
+        ratio of each strategy in any window.
+
+        0.70 means ending with 70% of the target.
+        """
+
+        ratios: dict[str, list[float]] = (
+            RollingResultsAnalyzer._get_strategy_target_ratios(
+                results,
+                target_annual_return
+            )
+        )
+
+        return {
+            strategy_name: min(values)
+            for strategy_name, values
+            in ratios.items()
+        }
+
+    @staticmethod
+    def get_worst_decile_target_ratio(
+            results: list[RollingWindowResult],
+            target_annual_return: float
+    ) -> dict[str, float]:
+        """
+        Returns the average final-value-to-target
+        ratio over the worst 10% of windows of
+        each strategy.
+
+        Less sensitive to a single extreme window
+        than the worst ratio.
+        """
+
+        ratios = (
+            RollingResultsAnalyzer._get_strategy_target_ratios(
+                results,
+                target_annual_return
+            )
+        )
+
+        worst_decile: dict[str, float] = {}
+
+        for strategy_name, values in ratios.items():
+            # At least one window, so it is also
+            # defined with fewer than 10 windows.
+            count = max(1, ceil(len(values) * 0.10))
+
+            # Keep the `count` lowest values (worst results)
+            worst = sorted(values)[:count]
+
+            worst_decile[strategy_name] = (
+                    sum(worst) / len(worst)
+            )
+
+        return worst_decile
+
+    @staticmethod
     def build_analysis(
-            results: list[RollingWindowResult]
+            results: list[RollingWindowResult],
+            target_annual_return: float | None = None
     ) -> list[AnalysisMetric]:
         """
         Builds the complete rolling
@@ -385,6 +533,11 @@ class RollingResultsAnalyzer:
 
         :param results:
             Rolling window results.
+
+          :param target_annual_return:
+              Minimum annual growth wanted, e.g.
+              0.05. When set, target metrics are
+              added to the analysis.
 
         :return:
             Analysis metrics.
@@ -404,7 +557,7 @@ class RollingResultsAnalyzer:
                 f"experiment file."
             )
 
-        return [
+        metrics = [
 
             AnalysisMetric(
                 name="Win Count",
@@ -486,3 +639,55 @@ class RollingResultsAnalyzer:
                 format=MetricFormat.DECIMAL
             )
         ]
+
+        if target_annual_return is not None:
+            target = f"{target_annual_return * 100:g}%"
+
+            metrics.extend([
+
+                AnalysisMetric(
+                    name=f"Target {target} Success Rate",
+                    values=
+                    RollingResultsAnalyzer.get_target_success_rate(
+                        results,
+                        target_annual_return
+                    ),
+                    reverse=True,
+                    format=MetricFormat.PERCENTAGE
+                ),
+
+                AnalysisMetric(
+                    name=f"Target {target} Average Shortfall",
+                    values=
+                    RollingResultsAnalyzer.get_average_shortfall(
+                        results,
+                        target_annual_return
+                    ),
+                    reverse=False,
+                    format=MetricFormat.PERCENTAGE
+                ),
+
+                AnalysisMetric(
+                    name=f"Target {target} Worst Ratio",
+                    values=
+                    RollingResultsAnalyzer.get_worst_target_ratio(
+                        results,
+                        target_annual_return
+                    ),
+                    reverse=True,
+                    format=MetricFormat.PERCENTAGE
+                ),
+
+                AnalysisMetric(
+                    name=f"Target {target} Worst 10% Ratio",
+                    values=
+                    RollingResultsAnalyzer.get_worst_decile_target_ratio(
+                        results,
+                        target_annual_return
+                    ),
+                    reverse=True,
+                    format=MetricFormat.PERCENTAGE
+                ),
+            ])
+
+        return metrics
