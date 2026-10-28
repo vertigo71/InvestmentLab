@@ -15,6 +15,12 @@ class AnalysisMetric:
         Human-readable metric name.
         Win Count, Average CAGR, ...
 
+    :param description:
+        One or two sentences explaining what the
+        metric measures and whether higher or
+        lower is better. Shown under the name in
+        reports.
+
     :param values:
         Metric values grouped by
         strategy.
@@ -30,9 +36,7 @@ class AnalysisMetric:
     """
 
     name: str
-
+    description: str
     values: dict[str, float]
-
     reverse: bool
-
     format: MetricFormat

@@ -10,6 +10,7 @@ from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.models.reference_price import ReferencePrice
 from core.models.simulation_context import SimulationContext
+from core.strategies.descriptions import deployment_text
 from core.strategies.strategy import Strategy
 
 
@@ -245,3 +246,79 @@ class DrawdownDCA(Strategy):
             f"{base}"
             f"{levels}"
         )
+
+    def description(self) -> str:
+        """
+        Returns the strategy description.
+
+        Example:
+
+            Invests in monthly contributions over
+            3 years, then holds. Each contribution
+            is multiplied by 2 when the price is at
+            least 10% below its running maximum, 3
+            at 20%, 4 at 30%, 5 at 40%.
+        """
+
+        text = (
+            f"Invests in "
+            f"{self.frequency.name.lower()} "
+            f"contributions "
+            f"{deployment_text(self.deploy_years)}."
+        )
+
+        if not self.levels:
+            return text
+
+        reference = (
+            "running average"
+            if self.reference_price ==
+               ReferencePrice.RUNNING_AVG
+            else "running maximum"
+        )
+
+        # First level in full, the rest abbreviated:
+        # "2 when the price is at least 10% below
+        # ..., 3 at 20%, 4 at 30%".
+        steps = [
+            f"{multiplier:g} at {self._distance(threshold)}"
+            for threshold, multiplier
+            in self.levels[1:]
+        ]
+
+        first_threshold, first_multiplier = self.levels[0]
+
+        text += (
+            f" Each contribution is multiplied by "
+            f"{first_multiplier:g} when the price is "
+            f"at least {self._distance(first_threshold)} "
+            f"its {reference}"
+        )
+
+        if steps:
+            text += f", {', '.join(steps)}"
+
+        text += "."
+
+        if self.base_multiplier != 1.0:
+            text += (
+                f" Otherwise it is multiplied by "
+                f"{self.base_multiplier:g}."
+            )
+
+        return text
+
+    @staticmethod
+    def _distance(threshold: float) -> str:
+        """
+        Describes a drawdown threshold relative to
+        the reference price:
+
+            0.10  -> "10% below"
+            -0.05 -> "5% above"
+            0.0   -> "0% below"
+        """
+
+        side = "above" if threshold < 0 else "below"
+
+        return f"{abs(threshold) * 100:g}% {side}"

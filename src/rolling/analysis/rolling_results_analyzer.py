@@ -561,6 +561,11 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Win Count",
+                description=(
+                    "Windows in which the strategy ends "
+                    "with the highest total value. "
+                    "Higher is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_win_count(
                     results
@@ -571,6 +576,10 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Average CAGR",
+                description=(
+                    "Average annual growth rate over all "
+                    "windows. Higher is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_average_cagr(
                     results
@@ -581,6 +590,10 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Best CAGR",
+                description=(
+                    "Highest annual growth rate in any "
+                    "window. Higher is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_best_cagr(
                     results
@@ -591,6 +604,10 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Worst CAGR",
+                description=(
+                    "Lowest annual growth rate in any "
+                    "window. Higher is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_worst_cagr(
                     results
@@ -601,6 +618,11 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="CAGR Std Dev",
+                description=(
+                    "How much the annual growth rate "
+                    "varies between windows (not within "
+                    "a window). Lower is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_cagr_std_dev(
                     results
@@ -611,6 +633,11 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Average Max Drawdown",
+                description=(
+                    "Average, over all windows, of the "
+                    "largest peak-to-trough fall of the "
+                    "portfolio value. Lower is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_average_max_drawdown(
                     results
@@ -621,6 +648,11 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Worst Max Drawdown",
+                description=(
+                    "Largest peak-to-trough fall of the "
+                    "portfolio value in any window. "
+                    "Lower is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_worst_max_drawdown(
                     results
@@ -631,6 +663,11 @@ class RollingResultsAnalyzer:
 
             AnalysisMetric(
                 name="Average Rank",
+                description=(
+                    "Average position among all "
+                    "strategies (1 = best final value). "
+                    "Lower is better."
+                ),
                 values=
                 RollingResultsAnalyzer.get_average_rank(
                     results
@@ -647,6 +684,11 @@ class RollingResultsAnalyzer:
 
                 AnalysisMetric(
                     name=f"Target {target} Success Rate",
+                    description=(
+                        f"Fraction of windows reaching the "
+                        f"target: initial capital growing "
+                        f"{target} per year. Higher is better."
+                    ),
                     values=
                     RollingResultsAnalyzer.get_target_success_rate(
                         results,
@@ -658,6 +700,12 @@ class RollingResultsAnalyzer:
 
                 AnalysisMetric(
                     name=f"Target {target} Average Shortfall",
+                    description=(
+                        "In the windows that miss the "
+                        "target, how far below it they end "
+                        "on average. 20% = ending with 80% "
+                        "of the target. Lower is better."
+                    ),
                     values=
                     RollingResultsAnalyzer.get_average_shortfall(
                         results,
@@ -669,6 +717,11 @@ class RollingResultsAnalyzer:
 
                 AnalysisMetric(
                     name=f"Target {target} Worst Ratio",
+                    description=(
+                        "Lowest final value / target in any "
+                        "window. 50% = ending with half of "
+                        "the target. Higher is better."
+                    ),
                     values=
                     RollingResultsAnalyzer.get_worst_target_ratio(
                         results,
@@ -680,6 +733,12 @@ class RollingResultsAnalyzer:
 
                 AnalysisMetric(
                     name=f"Target {target} Worst 10% Ratio",
+                    description=(
+                        "Average final value / target over "
+                        "the worst 10% of windows. Less "
+                        "sensitive to a single extreme "
+                        "window. Higher is better."
+                    ),
                     values=
                     RollingResultsAnalyzer.get_worst_decile_target_ratio(
                         results,

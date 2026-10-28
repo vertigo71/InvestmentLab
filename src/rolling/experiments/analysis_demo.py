@@ -1,6 +1,8 @@
 """
 Aggregated rolling strategy analysis.
 """
+from textwrap import fill
+
 from core.settings import SETTINGS
 from rolling.analysis.rolling_results_analyzer import (
     RollingResultsAnalyzer
@@ -29,11 +31,27 @@ def main():
         )
     )
 
+    # Legend with what each strategy does.
+    RollingBase.print_strategy_legend(
+        results
+    )
+
     # Display each analysis metric.
     for metric in analysis:
 
         print(
             f"\n{metric.name}"
+        )
+
+        # Description wrapped to a readable width
+        # and indented under the metric name.
+        print(
+            fill(
+                metric.description,
+                width=72,
+                initial_indent="  ",
+                subsequent_indent="  "
+            )
         )
 
         # Sort strategies according

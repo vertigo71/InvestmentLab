@@ -92,3 +92,20 @@ class Strategy(ABC):
         """
 
         pass
+
+    @abstractmethod
+    def description(self) -> str:
+        """
+        Returns a one-sentence explanation of
+        what the strategy does, with its actual
+        parameters, e.g.:
+
+            Invests the initial capital in equal
+            monthly contributions over 3 years,
+            then holds.
+
+        Complements name(), which is short and
+        unique but hard to read.
+        """
+
+        pass

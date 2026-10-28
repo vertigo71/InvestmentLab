@@ -6,6 +6,7 @@ from core.models.contribution_frequency import ContributionFrequency
 from core.models.portfolio import PortfolioBase
 from core.models.price_point import PricePoint
 from core.models.simulation_context import SimulationContext
+from core.strategies.descriptions import deployment_text
 from core.strategies.strategy import Strategy
 
 
@@ -101,3 +102,23 @@ class DCA(Strategy):
             f"{self.frequency.name}"
             f"{deploy}"
         )
+
+    def description(self) -> str:
+        """
+        Returns the strategy description.
+
+        Example:
+
+            Invests the initial capital in equal
+            monthly contributions over 3 years,
+            then holds.
+        """
+
+        return (
+            f"Invests the initial capital in equal "
+            f"{self.frequency.name.lower()} "
+            f"contributions "
+            f"{deployment_text(self.deploy_years)}."
+        )
+
+

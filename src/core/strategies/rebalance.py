@@ -146,3 +146,48 @@ class Rebalance(Strategy):
             f"{self.frequency.name}"
             f"{tolerance}"
         )
+
+    def description(self) -> str:
+        """
+        Returns the strategy description.
+
+        Examples:
+
+            Keeps 70% in shares and 30% in cash,
+            rebalancing on a semiannual basis.
+
+            Keeps 70% in shares and 30% in cash,
+            reviewed on a semiannual basis and
+            rebalanced when the share weight is
+            more than 5 points away from 70%.
+
+            Invests 70% in shares and keeps 30% in
+            cash, never rebalanced.
+        """
+
+        shares = f"{self.equity_weight * 100:g}%"
+        cash = f"{(1 - self.equity_weight) * 100:g}%"
+
+        if self.tolerance >= 1.0:
+            return (
+                f"Invests {shares} in shares and keeps "
+                f"{cash} in cash, never rebalanced."
+            )
+
+        period = (
+            f"on a {self.frequency.name.lower()} basis"
+        )
+
+        if self.tolerance == 0.0:
+            return (
+                f"Keeps {shares} in shares and {cash} "
+                f"in cash, rebalancing {period}."
+            )
+
+        return (
+            f"Keeps {shares} in shares and {cash} in "
+            f"cash, reviewed {period} and rebalanced "
+            f"when the share weight is more than "
+            f"{self.tolerance * 100:g} points away "
+            f"from {shares}."
+        )

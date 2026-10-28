@@ -2,6 +2,7 @@
 Shared functionality used by
 rolling-window experiments.
 """
+from textwrap import fill
 
 from core.settings import SETTINGS
 
@@ -64,3 +65,45 @@ class RollingBase:
                 initial_capital=SETTINGS.initial_capital
             )
         )
+
+    @staticmethod
+    def print_strategy_legend(
+            results: list[RollingWindowResult]
+    ) -> None:
+        """
+        Prints the name and description of each
+        simulated strategy, in the order of the
+        experiment file.
+
+        Strategies skipped by the engine (e.g.
+        incompatible with the data frequency)
+        are not listed, as they have no results.
+
+        :param results:
+            Rolling-window results, used to know
+            which strategies were simulated.
+        """
+
+        if not results:
+            return
+
+        # All windows have the same strategies.
+        simulated = results[0].strategy_results.keys()
+
+        print("Strategies")
+
+        for strategy in SETTINGS.rolling.strategies:
+
+            if strategy.name() not in simulated:
+                continue
+
+            print(strategy.name())
+
+            print(
+                fill(
+                    strategy.description(),
+                    width=72,
+                    initial_indent="  ",
+                    subsequent_indent="  "
+                )
+            )

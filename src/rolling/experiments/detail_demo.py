@@ -22,6 +22,11 @@ def main():
         RollingBase.build_results()
     )
 
+    # Legend with what each strategy does.
+    RollingBase.print_strategy_legend(
+        results
+    )
+
     for result in results:
 
         print(

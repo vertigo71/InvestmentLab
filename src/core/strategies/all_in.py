@@ -40,3 +40,13 @@ class AllIn(Strategy):
         """
 
         return "ALL_IN"
+
+    def description(self) -> str:
+        """
+        Returns the strategy description.
+        """
+
+        return (
+            "Invests the whole initial capital "
+            "in the first period and holds."
+        )
