@@ -246,6 +246,14 @@ class DrawdownDCA(Strategy):
     def name(self) -> str:
         """
         Returns the strategy name.
+
+        Optional parts are only shown when they
+        differ from the default, so existing
+        strategy names remain unchanged.
+
+        Example:
+
+            DDCA_AVG_BIWEEKLY_3Y_(10%;2)_(20%;3)_TP20%
         """
 
         levels = "_".join(
@@ -261,38 +269,40 @@ class DrawdownDCA(Strategy):
             else "AVG"
         )
 
-        # Only shown when it differs from
-        # the default, so existing strategy
-        # names remain unchanged.
-        base = (
-            f"BASE{self.base_multiplier:g}_"
-            if self.base_multiplier != 1.0
-            else ""
-        )
-
-        # Only shown when set, so existing
-        # strategy names remain unchanged.
         deploy = (
-            f"{self.deploy_years:g}Y_"
+            f"{self.deploy_years:g}Y"
             if self.deploy_years is not None
             else ""
         )
 
-        # Only shown when set.
+        base = (
+            f"BASE{self.base_multiplier:g}"
+            if self.base_multiplier != 1.0
+            else ""
+        )
+
         take_profit = (
-            f"_TP{self.take_profit:.0%}"
+            f"TP{self.take_profit:.0%}"
             if self.take_profit is not None
             else ""
         )
 
-        return (
-            f"DDCA_"
-            f"{reference}_"
-            f"{self.frequency.name}_"
-            f"{deploy}"
-            f"{base}"
-            f"{levels}"
-            f"{take_profit}"
+        parts = [
+            "DDCA",
+            reference,
+            self.frequency.name,
+            deploy,
+            base,
+            levels,
+            take_profit
+        ]
+
+        # Empty parts are skipped, so there is
+        # never a double or trailing "_".
+        return "_".join(
+            part
+            for part in parts
+            if part
         )
 
     def description(self) -> str:
