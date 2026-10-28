@@ -1,10 +1,9 @@
 from collections.abc import Iterator
 from datetime import date
 
-from core.models.portfolio import PortfolioBase
+from core.models.portfolio import PortfolioBase, Portfolio
 from core.models.simulation_context import SimulationContext
 from core.settings import SETTINGS
-from core.models.portfolio import Portfolio
 from core.models.price_series import PriceSeries
 from core.models.simulation_step import SimulationStep
 from core.models.strategy_result import StrategyResult
@@ -124,7 +123,8 @@ class StrategySimulator:
                     context=context,
                     portfolio=PortfolioBase(
                         cash_remaining=portfolio.cash_remaining,
-                        shares=portfolio.shares
+                        shares=portfolio.shares,
+                        cost_basis=portfolio.cost_basis
                     )
                 )
 

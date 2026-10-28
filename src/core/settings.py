@@ -487,8 +487,9 @@ def _parse_strategy(
                     data["frequency"],
                     f"{context}.frequency"
                 ),
-                deploy_years=_deploy_years(
+                deploy_years=_optional_number(
                     data,
+                    "deploy_years",
                     context
                 )
             )
@@ -507,7 +508,11 @@ def _parse_strategy(
                 "reference_price",
                 "levels"
             },
-            optional={"base_multiplier", "deploy_years"},
+            optional={
+                "base_multiplier",
+                "deploy_years",
+                "take_profit"
+            },
             context=context
         )
 
@@ -521,8 +526,9 @@ def _parse_strategy(
             f"{context}.base_multiplier"
         )
 
-        # DrawdownDCA validates the levels and the
-        # base multiplier; its error is reported
+        # DrawdownDCA validates the levels, the
+        # base multiplier, the deploy years and
+        # the take profit; its error is reported
         # with the position in the file.
         try:
             return DrawdownDCA(
@@ -538,8 +544,14 @@ def _parse_strategy(
                     f"{context}.reference_price"
                 ),
                 base_multiplier=base_multiplier,
-                deploy_years=_deploy_years(
+                deploy_years=_optional_number(
                     data,
+                    "deploy_years",
+                    context
+                ),
+                take_profit=_optional_number(
+                    data,
+                    "take_profit",
                     context
                 )
             )
@@ -766,18 +778,40 @@ def _levels(
     return levels
 
 
-def _deploy_years(data: dict, context: str) -> float | None:
+def _optional_number(
+        data: dict,
+        field: str,
+        context: str
+) -> float | None:
     """
-    Reads the optional deploy_years field of a
-    strategy. None when it is not present.
+    Reads an optional numeric field of a
+    strategy.
+
+    :param data:
+        Strategy section of the YAML.
+
+    :param field:
+        Name of the field, e.g. deploy_years.
+
+    :param context:
+        Position of the strategy in the file,
+        for error messages.
+
+    :return:
+        The number, or None when the field
+        is not present.
+
+    :raises ValueError:
+        If the field is present but is not
+        a number.
     """
 
-    if "deploy_years" not in data:
+    if field not in data:
         return None
 
     return _number(
-        data["deploy_years"],
-        f"{context}.deploy_years"
+        data[field],
+        f"{context}.{field}"
     )
 
 

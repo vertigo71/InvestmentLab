@@ -1,0 +1,66 @@
+# ============================================================
+# Drawdown DCA with take profit on S&P 500 total return,
+# weekly data from Yahoo Finance: biweekly contributions
+# over 3 years on the running average, with and without
+# selling the gain at 20%, against lump sum, plain DCA
+# and a 70/30 portfolio, over 10-year windows.
+#
+# Available options: see config_help.txt
+# ============================================================
+
+# Capital available at the start of each window.
+initial_capital: 100000
+
+# Annual rate earned by uninvested cash: the money
+# market where the gains sold wait to be reinvested,
+# and the 30% of the 70/30 portfolio. 0.02 = 2%.
+cash_annual_rate: 0.02
+
+rolling:
+
+  # 10 years: the investment horizon to evaluate.
+  window_years: 10
+
+  # Minimum annual growth wanted. 0.05 = 5%.
+  target_annual_return: 0.05
+
+  start_date: "1990-01-01"
+  end_date: "2026-01-01"
+
+  data_source:
+    type: yahoo
+    ticker: "^SP500TR"
+    frequency: WEEKLY
+
+  strategies:
+    # Everything invested in the first week.
+    - type: all_in
+
+    # Same pace without drawdown multipliers.
+    - type: dca
+      frequency: BIWEEKLY
+      deploy_years: 3
+
+    # Drawdown DCA on the running average,
+    # never selling.
+    - type: drawdown_dca
+      frequency: BIWEEKLY
+      reference_price: RUNNING_AVG
+      deploy_years: 3
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+
+    # Same, selling the gain when the shares
+    # are worth 20% more than they cost.
+    - type: drawdown_dca
+      frequency: BIWEEKLY
+      reference_price: RUNNING_AVG
+      deploy_years: 3
+      levels: [[0.10, 2], [0.20, 3], [0.30, 4], [0.40, 5]]
+      take_profit: 0.20
+
+    # 70% in shares, 30% in money market,
+    # rebalanced every 6 months.
+    - type: rebalance
+      equity_weight: 0.70
+      frequency: SEMIANNUAL
+

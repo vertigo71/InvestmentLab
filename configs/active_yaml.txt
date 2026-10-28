@@ -16,7 +16,8 @@
 # sp500_weekly
 # shiller_monthly
 # shiller_monthly_10y
-sp500_weekly_10y
+# sp500_weekly_10y
+sp500_biweekly_tp_10y
 
 
 

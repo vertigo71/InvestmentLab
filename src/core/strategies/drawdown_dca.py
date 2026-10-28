@@ -22,7 +22,8 @@ class DrawdownDCA(Strategy):
             frequency: ContributionFrequency,
             reference_price: ReferencePrice,
             base_multiplier: float = 1.0,
-            deploy_years: float | None = None
+            deploy_years: float | None = None,
+            take_profit: float | None = None
     ):
         """
         Creates a drawdown-based DCA strategy.
@@ -84,9 +85,21 @@ class DrawdownDCA(Strategy):
             Drawdown multipliers invest faster, so
             the capital may run out earlier.
 
+        :param take_profit:
+            Gain over the cost of the shares
+            that triggers a sale, e.g. 0.20
+            for 20%. When it is reached at a
+            contribution, the gain is sold
+            instead of buying, and returns to
+            cash to be invested again at the
+            strategy pace. None never sells.
+            See PortfolioBase.cost_basis.
+
         :raises ValueError:
-            If the levels or the base
-            multiplier are not valid.
+            If the levels, the base multiplier,
+            the deploy years or the take profit
+            are not valid.
+
         """
 
         # Thresholds must be strictly increasing.
@@ -140,11 +153,18 @@ class DrawdownDCA(Strategy):
                 f"got {deploy_years}"
             )
 
+        if take_profit is not None and take_profit <= 0:
+            raise ValueError(
+                f"Take profit must be positive, "
+                f"got {take_profit}"
+            )
+
         self.levels = levels
         self._frequency = frequency
         self.reference_price = reference_price
         self.base_multiplier = base_multiplier
         self.deploy_years = deploy_years
+        self.take_profit = take_profit
 
     @property
     def frequency(self) -> ContributionFrequency:
@@ -164,7 +184,27 @@ class DrawdownDCA(Strategy):
         Proposes the base amount scaled by the
         multiplier of the deepest drawdown
         level reached.
+
+        With take profit, if the gain of the
+        shares reaches the threshold, proposes
+        selling that gain instead (negative
+        amount).
         """
+
+        # Take profit: sell the gain instead of
+        # buying. Compared as gain >= rate * cost
+        # rather than gain / cost >= rate, so an
+        # empty position (cost 0) needs no
+        # division. Without shares there is no
+        # gain to sell, so the strategy buys.
+        if (
+                self.take_profit is not None and
+                portfolio.cost_basis > 0
+        ):
+            gain = portfolio.unrealized_gain(point.close)
+
+            if gain >= self.take_profit * portfolio.cost_basis:
+                return -gain
 
         # Select the reference price
         # used to calculate drawdown.
@@ -238,6 +278,13 @@ class DrawdownDCA(Strategy):
             else ""
         )
 
+        # Only shown when set.
+        take_profit = (
+            f"_TP{self.take_profit:.0%}"
+            if self.take_profit is not None
+            else ""
+        )
+
         return (
             f"DDCA_"
             f"{reference}_"
@@ -245,6 +292,7 @@ class DrawdownDCA(Strategy):
             f"{deploy}"
             f"{base}"
             f"{levels}"
+            f"{take_profit}"
         )
 
     def description(self) -> str:
@@ -257,7 +305,10 @@ class DrawdownDCA(Strategy):
             3 years, then holds. Each contribution
             is multiplied by 2 when the price is at
             least 10% below its running maximum, 3
-            at 20%, 4 at 30%, 5 at 40%.
+            at 20%, 4 at 30%, 5 at 40%. When the
+            shares are worth at least 20% more than
+            they cost, the gain is sold instead and
+            invested again later from cash.
         """
 
         text = (
@@ -267,43 +318,50 @@ class DrawdownDCA(Strategy):
             f"{deployment_text(self.deploy_years)}."
         )
 
-        if not self.levels:
-            return text
+        if self.levels:
 
-        reference = (
-            "running average"
-            if self.reference_price ==
-               ReferencePrice.RUNNING_AVG
-            else "running maximum"
-        )
+            reference = (
+                "running average"
+                if self.reference_price ==
+                   ReferencePrice.RUNNING_AVG
+                else "running maximum"
+            )
 
-        # First level in full, the rest abbreviated:
-        # "2 when the price is at least 10% below
-        # ..., 3 at 20%, 4 at 30%".
-        steps = [
-            f"{multiplier:g} at {self._distance(threshold)}"
-            for threshold, multiplier
-            in self.levels[1:]
-        ]
+            # First level in full, the rest abbreviated:
+            # "2 when the price is at least 10% below
+            # ..., 3 at 20%, 4 at 30%".
+            steps = [
+                f"{multiplier:g} at {self._distance(threshold)}"
+                for threshold, multiplier
+                in self.levels[1:]
+            ]
 
-        first_threshold, first_multiplier = self.levels[0]
+            first_threshold, first_multiplier = self.levels[0]
 
-        text += (
-            f" Each contribution is multiplied by "
-            f"{first_multiplier:g} when the price is "
-            f"at least {self._distance(first_threshold)} "
-            f"its {reference}"
-        )
-
-        if steps:
-            text += f", {', '.join(steps)}"
-
-        text += "."
-
-        if self.base_multiplier != 1.0:
             text += (
-                f" Otherwise it is multiplied by "
-                f"{self.base_multiplier:g}."
+                f" Each contribution is multiplied by "
+                f"{first_multiplier:g} when the price is "
+                f"at least {self._distance(first_threshold)} "
+                f"its {reference}"
+            )
+
+            if steps:
+                text += f", {', '.join(steps)}"
+
+            text += "."
+
+            if self.base_multiplier != 1.0:
+                text += (
+                    f" Otherwise it is multiplied by "
+                    f"{self.base_multiplier:g}."
+                )
+
+        if self.take_profit is not None:
+            text += (
+                f" When the shares are worth at least "
+                f"{self.take_profit * 100:g}% more than "
+                f"they cost, the gain is sold instead "
+                f"and invested again later from cash."
             )
 
         return text

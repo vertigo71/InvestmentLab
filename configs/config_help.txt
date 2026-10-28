@@ -84,6 +84,10 @@
 #   Invests a fixed amount at a fixed frequency.
 #   frequency: WEEKLY, BIWEEKLY, MONTHLY,
 #              QUARTERLY, SEMIANNUAL, ANNUAL
+#   deploy_years:     (optional) years over which the
+#                     capital is invested, then held,
+#                     e.g. 3. Without it, the capital
+#                     is spread over the whole window
 #
 # type: drawdown_dca
 #   Like dca, multiplying the amount when the price
@@ -97,7 +101,19 @@
 #                     e.g. [[0.10, 2], [0.20, 3]]
 #   base_multiplier:  (optional, default 1.0) applied when
 #                     no threshold is reached
-#
+#   deploy_years:     (optional) as in dca; multipliers
+#                     invest faster, so the capital may
+#                     run out earlier
+#   take_profit:      (optional) gain over the cost of
+#                     the shares that triggers a sale,
+#                     e.g. 0.20 for 20%. At a
+#                     contribution where it is reached,
+#                     only the gain is sold instead of
+#                     buying; it returns to cash and is
+#                     invested again at the strategy
+#                     pace. The shares left count as
+#                     bought at the sale price, so the
+#                     next 20% is measured from there
 #
 # type: rebalance
 #   Keeps a fixed fraction in shares and the rest in

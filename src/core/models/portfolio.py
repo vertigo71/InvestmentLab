@@ -21,27 +21,84 @@ class PortfolioBase:
     no buy() or sell(). Trades are executed by
     the simulator through Portfolio.
 
-    Attributes:
-        cash_remaining:
-            Amount still available for investment.
+    :param cash_remaining:
+        Amount still available for investment.
 
-        shares:
-            Number of accumulated shares.
+    :param shares:
+        Number of accumulated shares.
+
+    :param cost_basis:
+        What the shares held cost.
+        Purchases add the amount paid.
+        Sales take the gain out first:
+        the shares left count as bought
+        at the sale price, as if the whole
+        position had been sold and the
+        rest bought again.
+
+        Example, selling only the gain:
+
+            Step             Price  Shares   Value   Cost   Gain
+            Buy 10,000         100     100  10,000 10,000      0
+            Price rises        125     100  12,500 10,000  2,500
+            Sell the gain      125      80  10,000 10,000      0
+            (20 shares x 125)
+
+        The 80 shares left cost 10,000: as
+        if all 100 had been sold at 125 and
+        10,000 bought again. The next gain
+        is measured from 10,000.
+
+        Selling more than the gain lowers the
+        cost to the value of the shares left:
+        selling 5,000 instead of 2,500 leaves
+        7,500 in shares, with a cost of 7,500.
     """
 
     cash_remaining: float
     shares: float = 0.0
+    cost_basis: float = 0.0
 
     def position_value(self, price: float) -> float:
         """
         Market value of the shares at a price.
+
+        :param price:
+            Current asset price.
+
+        :return:
+            Shares times price.
         """
 
         return self.shares * price
 
+    def unrealized_gain(self, price: float) -> float:
+        """
+        Market value of the shares minus what
+        they cost. Negative when the position
+        is at a loss.
+
+        :param price:
+            Current asset price.
+
+        :return:
+            Position value minus cost basis.
+        """
+
+        return (
+                self.position_value(price) -
+                self.cost_basis
+        )
+
     def total_value(self, price: float) -> float:
         """
         Shares plus cash at a price.
+
+        :param price:
+            Current asset price.
+
+        :return:
+            Position value plus remaining cash.
         """
 
         return (
@@ -57,6 +114,13 @@ class PortfolioBase:
 
         Example: 70,000 in shares and 30,000
         in cash -> 0.70.
+
+        :param price:
+            Current asset price.
+
+        :return:
+            Position value divided by total
+            value.
         """
 
         return (
@@ -76,15 +140,14 @@ class Portfolio(PortfolioBase):
         """
         Purchases shares.
 
-        Args:
-            amount:
-                Amount of money requested
-                to invest.
+        :param amount:
+            Amount of money requested
+            to invest.
 
-            price:
-                Current asset price.
+        :param price:
+            Current asset price.
 
-        Returns:
+        :return:
             Amount actually invested, which
             may be lower than requested if
             there is not enough cash.
@@ -94,6 +157,7 @@ class Portfolio(PortfolioBase):
 
         self.shares += amount / price
         self.cash_remaining -= amount
+        self.cost_basis += amount
 
         return amount
 
@@ -102,15 +166,14 @@ class Portfolio(PortfolioBase):
         Sells shares for a given amount of money.
         The proceeds are added to the cash.
 
-        Args:
-            amount:
-                Amount of money requested from
-                the sale.
+        :param amount:
+            Amount of money requested from
+            the sale.
 
-            price:
-                Current asset price.
+        :param price:
+            Current asset price.
 
-        Returns:
+        :return:
             Amount actually received, which may
             be lower than requested if the
             position is worth less.
@@ -123,6 +186,15 @@ class Portfolio(PortfolioBase):
 
         self.shares -= amount / price
         self.cash_remaining += amount
+
+        # Gains first: the sale comes out of the
+        # unrealized gain, so the cost only drops
+        # if the shares left are worth less than
+        # it (see cost_basis).
+        self.cost_basis = min(
+            self.cost_basis,
+            self.position_value(price)
+        )
 
         return amount
 
@@ -141,16 +213,15 @@ class Portfolio(PortfolioBase):
 
             factor = (1 + annual_rate) ** (days / 365.25)
 
-        Args:
-            annual_rate:
-                Annual interest rate, e.g.
-                0.02 for 2%.
+        :param annual_rate:
+            Annual interest rate, e.g.
+            0.02 for 2%.
 
-            days:
-                Days elapsed since the
-                previous period.
+        :param days:
+            Days elapsed since the
+            previous period.
 
-        Returns:
+        :return:
             Interest earned, added to
             cash_remaining.
         """
